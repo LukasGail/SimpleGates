@@ -7,34 +7,34 @@ description: This plugin creates a special gate block that can be moved slowly. 
 commands:
   gate:
     description: This command shows the help page.
-    usage: /<command>
+    usage: /gate
     permission: gate.help
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.help
   gate help:
     description: This command shows the help page.
-    usage: /<command>
+    usage: /gate help
     permission: gate.help
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.help
   gate sel:
     description: This command gives a selector tool.
-    usage: /<command>
+    usage: /gate sel
     permission: gate.selector
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.selector
   gate set:
-    description: This command sets a new gate.
-    usage: /<command>
+    description: This command sets a new gate. Use force to set a gate bigger than 10 blocks.
+    usage: /gate set <force | f>
     permission: gate.set
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.set
   gate move:
     description: This command can move a gate manually.
-    usage: /<command>
+    usage: /gate move [distance] <direction> <repetitions> <delay between moves>
     permission: gate.move
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.move
   gate del:
     description: This command can delete a gate.
-    usage: /<command>
+    usage: /gate del
     permission: gate.delete
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.delete
 
 permissions:
   gate.*:
@@ -42,11 +42,13 @@ permissions:
     children:
       gate.help: true
       gate.selector: true
-      gate.info: true
+      gate.set: true
+      gate.move: true
+      gate.delete: true
     default: op
   gate.selector:
     description: Allows you to get a gate-selector-tool to yourself
     default: op
-  gate.info:
+  gate.help:
     description: Gives information about the SimpleGates plugin
     default: true
