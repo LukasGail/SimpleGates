@@ -1,0 +1,52 @@
+name: SimpleGates
+version: 0.2.0
+author: Lukas Gail
+api-version: "1.15"
+main: com.github.lukasgail.simplegates.SimpleGates
+description: This plugin creates a special gate block that can be moved slowly. The block does not have to be placed to match other blocks and has no collision with other blocks
+commands:
+  gate:
+    description: This command shows the help page.
+    usage: /<command>
+    permission: gate.help
+    permission-message: You don't have permission <permission>
+  gate help:
+    description: This command shows the help page.
+    usage: /<command>
+    permission: gate.help
+    permission-message: You don't have permission <permission>
+  gate sel:
+    description: This command gives a selector tool.
+    usage: /<command>
+    permission: gate.selector
+    permission-message: You don't have permission <permission>
+  gate set:
+    description: This command sets a new gate.
+    usage: /<command>
+    permission: gate.set
+    permission-message: You don't have permission <permission>
+  gate move:
+    description: This command can move a gate manually.
+    usage: /<command>
+    permission: gate.move
+    permission-message: You don't have permission <permission>
+  gate del:
+    description: This command can delete a gate.
+    usage: /<command>
+    permission: gate.delete
+    permission-message: You don't have permission <permission>
+
+permissions:
+  gate.*:
+    description: Gives access to all gate commands
+    children:
+      gate.help: true
+      gate.selector: true
+      gate.info: true
+    default: op
+  gate.selector:
+    description: Allows you to get a gate-selector-tool to yourself
+    default: op
+  gate.info:
+    description: Gives information about the SimpleGates plugin
+    default: true
