@@ -1,24 +1,29 @@
 package com.github.lukasgail.simplegates;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.LootTables;
 import org.bukkit.loot.Lootable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 
 import javax.naming.Name;
+import java.util.Collection;
+import java.util.Random;
 
 public class GateBlock {
 
@@ -26,26 +31,106 @@ public class GateBlock {
     private Material material;
     private boolean collision;
     private int timeAlive;
+    private LootTable lootTable;
     private ArmorStand armorStand;
+    private Shulker shulker;
+    private FallingBlock fallingBlock;
     private int id;
 
     public GateBlock(World world, double x, double y, double z) {
         this.loc = new Location(world, x + 0.5, y, z + 0.5);
         spawnGateBlock(world, this.loc);
+        LootTable emptyLootTable = new LootTable() {
+            @Override
+            public Collection<ItemStack> populateLoot(Random random, LootContext context) {
+                return null;
+            }
+
+            @Override
+            public void fillInventory(Inventory inventory, Random random, LootContext context) {
+
+            }
+
+            @Override
+            public NamespacedKey getKey() {
+                return null;
+            }
+        };
+
+        this.lootTable = emptyLootTable;
 
     }
 
     @SuppressWarnings("Deprecated")
     private void spawnGateBlock(World world, Location location) {
 
-        String command = "summon minecraft:armor_stand " + location.getX() +" "+ location.getY() +" "+ location.getZ() + " {NoGravity:1b,Invulnerable:1b,Small:1b,Marker:1b,Invisible:1b,PersistenceRequired:1b,Tags:[\"slidingDoor\"],Passengers:[{id:\"minecraft:shulker\",NoGravity:1b,Silent:1b,Invulnerable:1b,DeathLootTable:\"null\",PersistenceRequired:1b,NoAI:1b,AttachFace:0b,Tags:[\"slidingDoor\"],ActiveEffects:[{Id:10b,Amplifier:10b,Duration:247483647,ShowParticles:0b},{Id:14b,Amplifier:1b,Duration:247483647,ShowParticles:0b}]},{id:\"minecraft:falling_block\",BlockState:{Name:\"minecraft:iron_block\"},NoGravity:1b,Time:-247483648,DropItem:0b,Tags:[\"slidingDoor\"]}]}";
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+        /*
+        FallingBlock fallingBlock = world.spawnFallingBlock(location, Material.IRON_BLOCK, (byte) 0);
+        fallingBlock.addScoreboardTag("slidingDoor");
+        fallingBlock.setGravity(false);
+        fallingBlock.setInvulnerable(true);
+        fallingBlock.setDropItem(false);
+        fallingBlock.setFallDistance(0);
+        fallingBlock.setTicksLived(1);
+        fallingBlock.setGlowing(false);
+        fallingBlock.setTicksLived(1);
+         */
 
-        
 
-        //this.id = armorStand.getEntityId();
+        world.spawn(location, Shulker.class, shulker -> {
+
+            shulker.addScoreboardTag("slidingDoor");
+            shulker.setGravity(false);
+            shulker.setSilent(true);
+            shulker.setInvulnerable(true);
+            shulker.setLootTable(lootTable);
+            shulker.setAI(false);
+            shulker.setCanPickupItems(false);
+            shulker.setHealth(30);
+            shulker.setAbsorptionAmount(30);
+            shulker.setCollidable(false);
+            shulker.setGlowing(false);
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 10, false, false, false)));
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 10, false, false, false)));
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 10, false, false, false)));
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 10, false, false, false)));
+
+            this.shulker = shulker;
+
+
+            FallingBlock fallingBlock = world.spawnFallingBlock(location, Material.IRON_BLOCK, (byte) 0);
+            fallingBlock.addScoreboardTag("slidingDoor");
+            fallingBlock.setGravity(false);
+            fallingBlock.setInvulnerable(true);
+            fallingBlock.setDropItem(false);
+            fallingBlock.setFallDistance(0);
+            fallingBlock.setGlowing(false);
+            fallingBlock.setTicksLived(1);
+
+            this.fallingBlock = fallingBlock;
+
+
+            world.spawn(location, ArmorStand.class, armorStand -> {
+                armorStand.addScoreboardTag("slidingDoor");
+                armorStand.setGravity(false);
+                armorStand.setInvulnerable(true);
+                armorStand.setSmall(true);
+                armorStand.setMarker(true);
+                armorStand.setVisible(false);
+                armorStand.setGlowing(false);
+                armorStand.addPassenger(shulker);
+                armorStand.addPassenger(fallingBlock);
+
+                this.armorStand = armorStand;
+
+
+            });
+
+        });
+
+        this.id = armorStand.getEntityId();
+
     }
-
 
 
     public void despawnGateBlock() {

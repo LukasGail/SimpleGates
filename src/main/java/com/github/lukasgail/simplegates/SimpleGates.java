@@ -125,6 +125,10 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     delGate();
                     break;
 
+                case "inv":
+                    invGate();
+                    break;
+
                 default:
                     player.sendMessage(pluginPrefix);
                     player.sendMessage("Wrong arguments?");
@@ -284,6 +288,13 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
 
     }
+
+    public void invGate() {
+        String command = "kill @e[tag=slidingDoor,type=minecraft:shulker]";
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+    }
+
+
 
     public void pauseHandler(Player player, Thread thread, long pauseTime){
         try {
