@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
     private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
     private Location selectedLocation1;
     private Location selectedLocation2;
+    private ArrayList<GateBlock[]> gatesList = new ArrayList<>();
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
 
     @Override
@@ -84,37 +86,35 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     break;
 
                 case "move":
+                    String moveArguments = pluginPrefix +"\nTry /gate move [number] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>";
                     if (args.length == 1) {
-                        player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                        player.sendMessage(moveArguments);
+                        player.sendMessage("Examples:\nnumber = 0.1\ndirection = n/s/w/e/ne/nw/se/sw/u(up)/d(down)\nrepetitions = 10\ndelay = 1");
                     }
                     if (args.length == 2) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]));
 
                         } catch (Exception e) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     } else if (args.length == 3) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]), args[2]);
                         } catch (Exception e2) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     } else if (args.length == 4) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]), args[2], Long.parseLong(args[3]));
                         } catch (Exception e2) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     } else if (args.length == 5) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]), args[2], Long.parseLong(args[3]), Long.parseLong(args[4]));
                         } catch (Exception e2) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     }
                     break;
@@ -132,7 +132,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
                 default:
                     player.sendMessage(pluginPrefix);
                     player.sendMessage("Wrong arguments?");
-                    player.sendMessage("Try /gate for help.");
+                    player.sendMessage("Try /gate - for help.");
                     break;
             }
         }
@@ -175,24 +175,28 @@ public class SimpleGates extends JavaPlugin implements Listener {
             Block[] blocksArray = new Block[blocks.size()];
             blocksArray = blocks.toArray(blocksArray);
 
-            if (blocksArray.length < 11) {
-
+            if (args.length >= 2 && blocksArray.length < 11) {
+                GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
                 for (int i = 0; i < blocksArray.length; i++) {
-                    GateBlock gate = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ());
+                    GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1]);
+
+                    arrayForNewGate[i] = gateBlock;
                 }
 
             } else {
-                if (args.length >= 2 && args[1].matches("^f(orce)?$")) {
-
+                if (args.length >= 3 && args[2].matches("^f(orce)?$")) {
+                    GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
                     for (int i = 0; i < blocksArray.length; i++) {
-                        GateBlock gate = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ());
+                        GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1]);
+
+                        arrayForNewGate[i] = gateBlock;
                     }
 
                 } else {
                     player.sendMessage(pluginPrefix);
                     player.sendMessage(ChatColor.GREEN + "You have selected " + blocksArray.length + " blocks.");
                     player.sendMessage(ChatColor.GREEN + "[" + ChatColor.GOLD + "Warning" + ChatColor.GREEN + "] A large number of blocks could cause lags.");
-                    player.sendMessage(ChatColor.GREEN + "If you are sure you want to set the Gate type:" + ChatColor.GOLD + " /gate set force  (alternative f) ");
+                    player.sendMessage(ChatColor.GREEN + "If you are sure you want to set the Gate type:" + ChatColor.GOLD + " /gate set [name] force  (alternative f) ");
                 }
             }
 
@@ -290,19 +294,20 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
     public void invGate() {
-        String command = "kill @e[tag=slidingDoor,type=minecraft:shulker]";
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+
     }
 
 
 
-    public void pauseHandler(Player player, Thread thread, long pauseTime){
-        try {
-            thread.wait(pauseTime);
-        }catch (InterruptedException ex){
-            player.sendMessage(ChatColor.RED + "ERROR - Thread pause failed!");
-        }
+    public GateBlock[] ListManager(String name, int size) {
+        GateBlock[] arrayToAdd = new GateBlock[size];
+        gatesList.add(arrayToAdd);
+        return gatesList.get(gatesList.size()-1);
+
     }
+
+
+
 
 
     public static String getCardinalDirection(Player player) {

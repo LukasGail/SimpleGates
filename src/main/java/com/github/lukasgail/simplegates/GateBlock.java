@@ -36,10 +36,12 @@ public class GateBlock {
     private Shulker shulker;
     private FallingBlock fallingBlock;
     private int id;
+    private String name;
 
-    public GateBlock(World world, double x, double y, double z) {
+    public GateBlock(World world, double x, double y, double z, String name) {
         this.loc = new Location(world, x + 0.5, y, z + 0.5);
-        spawnGateBlock(world, this.loc);
+        this.name = name;
+        spawnGateBlock(world, this.loc, name);
         LootTable emptyLootTable = new LootTable() {
             @Override
             public Collection<ItemStack> populateLoot(Random random, LootContext context) {
@@ -62,20 +64,7 @@ public class GateBlock {
     }
 
     @SuppressWarnings("Deprecated")
-    private void spawnGateBlock(World world, Location location) {
-
-        /*
-        FallingBlock fallingBlock = world.spawnFallingBlock(location, Material.IRON_BLOCK, (byte) 0);
-        fallingBlock.addScoreboardTag("slidingDoor");
-        fallingBlock.setGravity(false);
-        fallingBlock.setInvulnerable(true);
-        fallingBlock.setDropItem(false);
-        fallingBlock.setFallDistance(0);
-        fallingBlock.setTicksLived(1);
-        fallingBlock.setGlowing(false);
-        fallingBlock.setTicksLived(1);
-         */
-
+    private void spawnGateBlock(World world, Location location, String name) {
 
         world.spawn(location, Shulker.class, shulker -> {
 
