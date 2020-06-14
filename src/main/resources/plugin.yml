@@ -35,6 +35,16 @@ commands:
     usage: /gate del
     permission: gate.delete
     permission-message: You don't have permission gate.delete
+  gate inv:
+    description: This command can toggle the collision of a gate.
+    usage: /gate inv [name]
+    permission: gate.inv
+    permission-message: You don't have permission gate.inv
+  gate list:
+    description: This command lists all available gates.
+    usage: /gate list
+    permission: gate.list
+    permission-message: You don't have permission gate.list
 
 permissions:
   gate.*:
@@ -45,6 +55,8 @@ permissions:
       gate.set: true
       gate.move: true
       gate.delete: true
+      gate.inv: true
+      gate.list: true
     default: op
   gate.selector:
     description: Allows you to get a gate-selector-tool to yourself

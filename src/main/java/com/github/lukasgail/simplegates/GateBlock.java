@@ -60,6 +60,7 @@ public class GateBlock {
         };
 
         this.lootTable = emptyLootTable;
+        this.collision = true;
 
     }
 
@@ -121,6 +122,13 @@ public class GateBlock {
 
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getName(){
+        return this.name;
+    }
+
 
     public void despawnGateBlock() {
 
@@ -165,6 +173,9 @@ public class GateBlock {
 
     public void setCollision(boolean collision) {
         this.collision = collision;
+        if(!collision) {
+            this.shulker.remove();
+        }
     }
 
     public boolean getCollision() {

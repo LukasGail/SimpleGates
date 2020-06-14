@@ -126,7 +126,16 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     break;
 
                 case "inv":
-                    invGate();
+                    if(args.length >= 2) {
+                        invGate(args[1]);
+                    }else{
+                        player.sendMessage("Try /gate inv [gatename]");
+                        player.sendMessage("For a list of Names type /gate list");
+                    }
+                    break;
+
+                case "list":
+                    listGates(player);
                     break;
 
                 default:
@@ -176,21 +185,13 @@ public class SimpleGates extends JavaPlugin implements Listener {
             blocksArray = blocks.toArray(blocksArray);
 
             if (args.length >= 2 && blocksArray.length < 11) {
-                GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
-                for (int i = 0; i < blocksArray.length; i++) {
-                    GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1]);
 
-                    arrayForNewGate[i] = gateBlock;
-                }
+                spawnBlocks(player, args, blocksArray);
 
             } else {
                 if (args.length >= 3 && args[2].matches("^f(orce)?$")) {
-                    GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
-                    for (int i = 0; i < blocksArray.length; i++) {
-                        GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1]);
 
-                        arrayForNewGate[i] = gateBlock;
-                    }
+                    spawnBlocks(player, args, blocksArray);
 
                 } else {
                     player.sendMessage(pluginPrefix);
@@ -204,6 +205,18 @@ public class SimpleGates extends JavaPlugin implements Listener {
             player.sendMessage(pluginPrefix);
             player.sendMessage(ChatColor.RED + "You either have not yet set both selection points or the points are not in the same world!");
         }
+    }
+
+
+    public void spawnBlocks(Player player, String[] args, Block[] blocksArray) {
+
+        GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
+        for (int i = 0; i < blocksArray.length; i++) {
+            GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1]);
+
+            arrayForNewGate[i] = gateBlock;
+        }
+
     }
 
 
@@ -293,7 +306,38 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     }
 
-    public void invGate() {
+    public void invGate(String name) {
+
+        int gateIndex = 0;
+        for(GateBlock[] next : gatesList) {
+            if (next[0].getName() == name){
+
+                GateBlock[] gate = gatesList.get(gateIndex);
+                for(GateBlock block : gate) {
+                    block.setCollision(false);
+                }
+
+                break;
+
+            }
+            gateIndex++;
+        }
+
+
+    }
+
+
+    public void listGates(Player player) {
+        ArrayList<String> gateNamesList = new ArrayList<>();
+        for(GateBlock[] gateArray : gatesList){
+            gateNamesList.add(gateArray[0].getName());
+        }
+
+        for(int i = 0; i < gateNamesList.size(); i++) {
+
+            player.sendMessage(gateNamesList.get(i));
+
+        }
 
     }
 
