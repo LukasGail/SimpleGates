@@ -40,6 +40,11 @@ commands:
     usage: /gate inv [name]
     permission: gate.inv
     permission-message: You don't have permission gate.inv
+  gate testinvall:
+    description: This command can toggle the collision of a gate.
+    usage: /gate testinvall [name]
+    permission: gate.testinvall
+    permission-message: You don't have permission gate.testinvall
   gate list:
     description: This command lists all available gates.
     usage: /gate list
@@ -56,6 +61,7 @@ permissions:
       gate.move: true
       gate.delete: true
       gate.inv: true
+      gate.testinvall: true
       gate.list: true
     default: op
   gate.selector:

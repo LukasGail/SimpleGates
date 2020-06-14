@@ -86,7 +86,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     break;
 
                 case "move":
-                    String moveArguments = pluginPrefix +"\nTry /gate move [number] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>";
+                    String moveArguments = pluginPrefix + "\nTry /gate move [number] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>";
                     if (args.length == 1) {
                         player.sendMessage(moveArguments);
                         player.sendMessage("Examples:\nnumber = 0.1\ndirection = n/s/w/e/ne/nw/se/sw/u(up)/d(down)\nrepetitions = 10\ndelay = 1");
@@ -125,14 +125,21 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     delGate();
                     break;
 
+
                 case "inv":
-                    if(args.length >= 2) {
+                    if (args.length >= 2) {
                         invGate(args[1]);
-                    }else{
+                    } else {
                         player.sendMessage("Try /gate inv [gatename]");
                         player.sendMessage("For a list of Names type /gate list");
                     }
                     break;
+
+
+                case "testinvall":
+                    invAll(player);
+                    break;
+
 
                 case "list":
                     listGates(player);
@@ -184,7 +191,9 @@ public class SimpleGates extends JavaPlugin implements Listener {
             Block[] blocksArray = new Block[blocks.size()];
             blocksArray = blocks.toArray(blocksArray);
 
-            if (args.length >= 2 && blocksArray.length < 11) {
+            if (args.length == 1) {
+                player.sendMessage(pluginPrefix + ChatColor.RED + "\nYou have to specify a name for the gate.\nTry /gate set [name] <force>");
+            } else if (args.length >= 2 && blocksArray.length < 11) {
 
                 spawnBlocks(player, args, blocksArray);
 
@@ -309,11 +318,11 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public void invGate(String name) {
 
         int gateIndex = 0;
-        for(GateBlock[] next : gatesList) {
-            if (next[0].getName() == name){
+        for (GateBlock[] next : gatesList) {
+            if (next[0].getName() == name) {
 
                 GateBlock[] gate = gatesList.get(gateIndex);
-                for(GateBlock block : gate) {
+                for (GateBlock block : gate) {
                     block.setCollision(false);
                 }
 
@@ -323,35 +332,34 @@ public class SimpleGates extends JavaPlugin implements Listener {
             gateIndex++;
         }
 
+    }
 
+    public void invAll(Player player) {
+        for (GateBlock[] array : gatesList) {
+            for (GateBlock block : array) {
+                block.despawnGateBlock();
+                player.sendMessage(block.getName() + " " + ChatColor.GOLD + block.getId() + ChatColor.GREEN + " has been removed");
+            }
+        }
     }
 
 
     public void listGates(Player player) {
-        ArrayList<String> gateNamesList = new ArrayList<>();
-        for(GateBlock[] gateArray : gatesList){
-            gateNamesList.add(gateArray[0].getName());
+        String[] gateNamesList = new String[gatesList.size()];
+        for (int i = 0; i < gatesList.size(); i++) {
+            gateNamesList[i] = gatesList.get(i)[0].getName();
         }
 
-        for(int i = 0; i < gateNamesList.size(); i++) {
-
-            player.sendMessage(gateNamesList.get(i));
-
-        }
-
+        player.sendMessage(gateNamesList);
     }
-
 
 
     public GateBlock[] ListManager(String name, int size) {
         GateBlock[] arrayToAdd = new GateBlock[size];
         gatesList.add(arrayToAdd);
-        return gatesList.get(gatesList.size()-1);
+        return gatesList.get(gatesList.size() - 1);
 
     }
-
-
-
 
 
     public static String getCardinalDirection(Player player) {

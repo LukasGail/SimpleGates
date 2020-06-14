@@ -67,13 +67,14 @@ public class GateBlock {
     @SuppressWarnings("Deprecated")
     private void spawnGateBlock(World world, Location location, String name) {
 
-        world.spawn(location, Shulker.class, shulker -> {
+        this.shulker = world.spawn(location, Shulker.class, shulker -> {
 
             shulker.addScoreboardTag("slidingDoor");
+            shulker.addScoreboardTag(name);
             shulker.setGravity(false);
             shulker.setSilent(true);
             shulker.setInvulnerable(true);
-            shulker.setLootTable(lootTable);
+            shulker.setLootTable(this.lootTable);
             shulker.setAI(false);
             shulker.setCanPickupItems(false);
             shulker.setHealth(30);
@@ -85,11 +86,11 @@ public class GateBlock {
             shulker.addPotionEffect((new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 10, false, false, false)));
             shulker.addPotionEffect((new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 10, false, false, false)));
 
-            this.shulker = shulker;
 
 
-            FallingBlock fallingBlock = world.spawnFallingBlock(location, Material.IRON_BLOCK, (byte) 0);
+            this.fallingBlock = world.spawnFallingBlock(location, Material.IRON_BLOCK, (byte) 0);
             fallingBlock.addScoreboardTag("slidingDoor");
+            fallingBlock.addScoreboardTag(name);
             fallingBlock.setGravity(false);
             fallingBlock.setInvulnerable(true);
             fallingBlock.setDropItem(false);
@@ -97,11 +98,11 @@ public class GateBlock {
             fallingBlock.setGlowing(false);
             fallingBlock.setTicksLived(1);
 
-            this.fallingBlock = fallingBlock;
 
 
-            world.spawn(location, ArmorStand.class, armorStand -> {
+            this.armorStand = world.spawn(location, ArmorStand.class, armorStand -> {
                 armorStand.addScoreboardTag("slidingDoor");
+                armorStand.addScoreboardTag(name);
                 armorStand.setGravity(false);
                 armorStand.setInvulnerable(true);
                 armorStand.setSmall(true);
@@ -111,7 +112,6 @@ public class GateBlock {
                 armorStand.addPassenger(shulker);
                 armorStand.addPassenger(fallingBlock);
 
-                this.armorStand = armorStand;
 
 
             });
@@ -120,18 +120,24 @@ public class GateBlock {
 
         this.id = armorStand.getEntityId();
 
+
     }
 
     public void setName(String name) {
         this.name = name;
     }
-    public String getName(){
+
+    public String getName() {
         return this.name;
     }
 
 
     public void despawnGateBlock() {
-
+        this.shulker.remove();
+        this.armorStand.removePassenger(this.shulker);
+        this.armorStand.remove();
+        this.fallingBlock.setTicksLived(1);
+        this.fallingBlock.remove();
     }
 
 
@@ -172,10 +178,10 @@ public class GateBlock {
 
 
     public void setCollision(boolean collision) {
-        this.collision = collision;
-        if(!collision) {
+        if (!collision) {
             this.shulker.remove();
         }
+        this.collision = collision;
     }
 
     public boolean getCollision() {
@@ -189,6 +195,11 @@ public class GateBlock {
 
     public int getTimeAlive() {
         return this.timeAlive;
+    }
+
+
+    public int getId() {
+        return this.id;
     }
 
 
