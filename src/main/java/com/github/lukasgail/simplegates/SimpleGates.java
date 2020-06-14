@@ -14,6 +14,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Array;
@@ -27,6 +28,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
     private Location selectedLocation2;
     private ArrayList<GateBlock[]> gatesList = new ArrayList<>();
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
+    public Plugin pluginSimpleGate = this;
 
     @Override
     public void onEnable() {
@@ -128,7 +130,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
                 case "inv":
                     if (args.length >= 2) {
-                        invGate(args[1]);
+                        invGate(player, args[1]);
                     } else {
                         player.sendMessage("Try /gate inv [gatename]");
                         player.sendMessage("For a list of Names type /gate list");
@@ -179,7 +181,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
             player.getInventory().setItem(player.getInventory().firstEmpty(), stick);
             player.sendMessage(pluginPrefix);
-            player.sendMessage(ChatColor.GREEN + "A selector stick was given to your inventory.\n            Click with the left mouse to select the first position\n            and with the right for the second position.\n");
+            player.sendMessage(pluginPrefix + ChatColor.WHITE + "A selector stick was given to your inventory.\nClick with the left mouse to select the first position\nand with the right for the second position.");
         }
     }
 
@@ -221,7 +223,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
         GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
         for (int i = 0; i < blocksArray.length; i++) {
-            GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1]);
+            GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1], pluginSimpleGate);
 
             arrayForNewGate[i] = gateBlock;
         }
@@ -315,14 +317,18 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     }
 
-    public void invGate(String name) {
+    public void invGate(Player player,String name) {
 
         int gateIndex = 0;
+        player.sendMessage("Name of gate:" + name);
         for (GateBlock[] next : gatesList) {
-            if (next[0].getName() == name) {
+            player.sendMessage("aussere schleife - gateIndex" + gateIndex);
+            if (next[0].getName().equals(name)) {
 
+                player.sendMessage("name found!!!");
                 GateBlock[] gate = gatesList.get(gateIndex);
                 for (GateBlock block : gate) {
+                    player.sendMessage("set collision!!!!");
                     block.setCollision(false);
                 }
 
@@ -337,8 +343,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public void invAll(Player player) {
         for (GateBlock[] array : gatesList) {
             for (GateBlock block : array) {
-                block.despawnGateBlock();
-                player.sendMessage(block.getName() + " " + ChatColor.GOLD + block.getId() + ChatColor.GREEN + " has been removed");
+                block.setCollision(false);
+                player.sendMessage(block.getName() + " " + ChatColor.GOLD + block.getId() + ChatColor.GREEN + " collision has been set to " + block.getCollision());
             }
         }
     }

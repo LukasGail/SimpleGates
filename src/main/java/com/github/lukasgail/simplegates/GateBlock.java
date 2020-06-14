@@ -1,29 +1,12 @@
 package com.github.lukasgail.simplegates;
 
 import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.CommandBlock;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
-import org.bukkit.loot.LootTables;
-import org.bukkit.loot.Lootable;
-import org.bukkit.material.MaterialData;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Consumer;
-import org.bukkit.util.Vector;
-
-import javax.naming.Name;
-import java.util.Collection;
-import java.util.Random;
 
 public class GateBlock {
 
@@ -37,29 +20,13 @@ public class GateBlock {
     private FallingBlock fallingBlock;
     private int id;
     private String name;
+    private Plugin pluginSimpleGate;
 
-    public GateBlock(World world, double x, double y, double z, String name) {
+    public GateBlock(World world, double x, double y, double z, String name, Plugin pluginSimpleGate) {
+        this.pluginSimpleGate = pluginSimpleGate;
         this.loc = new Location(world, x + 0.5, y, z + 0.5);
         this.name = name;
         spawnGateBlock(world, this.loc, name);
-        LootTable emptyLootTable = new LootTable() {
-            @Override
-            public Collection<ItemStack> populateLoot(Random random, LootContext context) {
-                return null;
-            }
-
-            @Override
-            public void fillInventory(Inventory inventory, Random random, LootContext context) {
-
-            }
-
-            @Override
-            public NamespacedKey getKey() {
-                return null;
-            }
-        };
-
-        this.lootTable = emptyLootTable;
         this.collision = true;
 
     }
@@ -74,7 +41,6 @@ public class GateBlock {
             shulker.setGravity(false);
             shulker.setSilent(true);
             shulker.setInvulnerable(true);
-            shulker.setLootTable(this.lootTable);
             shulker.setAI(false);
             shulker.setCanPickupItems(false);
             shulker.setHealth(30);
@@ -120,6 +86,16 @@ public class GateBlock {
 
         this.id = armorStand.getEntityId();
 
+        new BukkitRunnable() {
+            public void run() {
+                if(fallingBlock.isDead()) {
+                    this.cancel();
+                } else {
+                    fallingBlock.setTicksLived(1);
+                }
+            }
+        }.runTaskTimer(pluginSimpleGate, 0, 20L);
+
 
     }
 
@@ -134,10 +110,8 @@ public class GateBlock {
 
     public void despawnGateBlock() {
         this.shulker.remove();
-        this.armorStand.removePassenger(this.shulker);
-        this.armorStand.remove();
-        this.fallingBlock.setTicksLived(1);
         this.fallingBlock.remove();
+        this.armorStand.remove();
     }
 
 
@@ -195,6 +169,10 @@ public class GateBlock {
 
     public int getTimeAlive() {
         return this.timeAlive;
+    }
+
+    public void blockUpdate() {
+        //TODO
     }
 
 
