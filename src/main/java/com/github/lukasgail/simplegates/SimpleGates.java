@@ -180,7 +180,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
             stick.setItemMeta(stickmeta);
 
             player.getInventory().setItem(player.getInventory().firstEmpty(), stick);
-            player.sendMessage(pluginPrefix);
             player.sendMessage(pluginPrefix + ChatColor.WHITE + "A selector stick was given to your inventory.\nClick with the left mouse to select the first position\nand with the right for the second position.");
         }
     }
