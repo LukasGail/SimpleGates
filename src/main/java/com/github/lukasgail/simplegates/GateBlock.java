@@ -1,8 +1,13 @@
 package com.github.lukasgail.simplegates;
 
 import org.bukkit.*;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.meta.BlockDataMeta;
 import org.bukkit.loot.LootTable;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -22,10 +27,11 @@ public class GateBlock {
     private String name;
     private Plugin pluginSimpleGate;
 
-    public GateBlock(World world, double x, double y, double z, String name, Plugin pluginSimpleGate) {
+    public GateBlock(World world, double x, double y, double z, String name, Material material, Plugin pluginSimpleGate) {
         this.pluginSimpleGate = pluginSimpleGate;
-        this.loc = new Location(world, x + 0.5, y, z + 0.5);
+        this.loc = new Location(world, x, y, z);
         this.name = name;
+        this.material = material;
         spawnGateBlock(world, this.loc, name);
         this.collision = true;
 
@@ -54,7 +60,7 @@ public class GateBlock {
 
 
 
-            this.fallingBlock = world.spawnFallingBlock(location, Material.IRON_BLOCK, (byte) 0);
+            this.fallingBlock = world.spawnFallingBlock(location, material, (byte) 0);
             fallingBlock.addScoreboardTag("slidingDoor");
             fallingBlock.addScoreboardTag(name);
             fallingBlock.setGravity(false);
@@ -121,6 +127,14 @@ public class GateBlock {
 
     public Material getMaterial() {
         return this.material;
+    }
+
+
+    public Location getLoc() {
+        return loc;
+    }
+    public void setLoc(Location newLoc) {
+        this.loc = newLoc;
     }
 
 

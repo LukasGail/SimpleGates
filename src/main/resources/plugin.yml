@@ -50,6 +50,11 @@ commands:
     usage: /gate list
     permission: gate.list
     permission-message: You don't have permission gate.list
+  gate setmaterial:
+    description: This command set a gate to a new material.
+    usage: /gate list
+    permission: gate.setmaterial
+    permission-message: You don't have permission gate.setmaterial
 
 permissions:
   gate.*:
@@ -63,6 +68,7 @@ permissions:
       gate.inv: true
       gate.testinvall: true
       gate.list: true
+      gate.setmaterial: true
     default: op
   gate.selector:
     description: Allows you to get a gate-selector-tool to yourself

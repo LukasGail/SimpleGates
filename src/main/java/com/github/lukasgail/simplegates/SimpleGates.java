@@ -87,6 +87,10 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     setGate(player, args);
                     break;
 
+                case "setmaterial":
+                    changeMaterial(player, args[1], args[2]);
+                    break;
+
                 case "move":
                     String moveArguments = pluginPrefix + "\nTry /gate move [number] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>";
                     if (args.length == 1) {
@@ -220,12 +224,46 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     public void spawnBlocks(Player player, String[] args, Block[] blocksArray) {
 
+        Material material = Material.IRON_BLOCK;
         GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
         for (int i = 0; i < blocksArray.length; i++) {
-            GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ(), args[1], pluginSimpleGate);
+            GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, args[1], material, pluginSimpleGate);
 
             arrayForNewGate[i] = gateBlock;
         }
+
+    }
+
+
+    public void changeMaterial(Player player, String name, String materialString) {
+
+
+        Material material = Material.matchMaterial(materialString);
+        if (material == null) {
+            material = Material.COAL_BLOCK;
+            player.sendMessage("material not found!");
+        }
+
+        int gateIndex = 0;
+
+        for (GateBlock[] next : gatesList) {
+            if (next[0].getName().equals(name)) {
+                GateBlock[] gate = gatesList.get(gateIndex);
+                for (int i = 0; i < gate.length; i++) {
+                    GateBlock oldBlock = gate[i];
+                    gate[i] = new GateBlock(oldBlock.getLoc().getWorld(), oldBlock.getX(), oldBlock.getY(), oldBlock.getZ(), oldBlock.getName(), material, pluginSimpleGate);
+                    oldBlock.despawnGateBlock();
+                }
+                player.sendMessage("gatename: " + name + "was set to material: " + material);
+                break;
+
+            }
+            gateIndex++;
+        }
+
+
+        player.sendMessage("gatename: " + name + "was not found. Try \"/gate list\" for a list of available names");
+
 
     }
 
@@ -319,18 +357,13 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public void invGate(Player player,String name) {
 
         int gateIndex = 0;
-        player.sendMessage("Name of gate:" + name);
         for (GateBlock[] next : gatesList) {
-            player.sendMessage("aussere schleife - gateIndex" + gateIndex);
             if (next[0].getName().equals(name)) {
-
-                player.sendMessage("name found!!!");
                 GateBlock[] gate = gatesList.get(gateIndex);
                 for (GateBlock block : gate) {
-                    player.sendMessage("set collision!!!!");
                     block.setCollision(false);
                 }
-
+                player.sendMessage("Changed collision from: " + name);
                 break;
 
             }
