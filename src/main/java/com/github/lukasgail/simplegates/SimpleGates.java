@@ -24,9 +24,8 @@ import java.util.List;
 
 public class SimpleGates extends JavaPlugin implements Listener {
     private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
-    private Location selectedLocation1;
-    private Location selectedLocation2;
     private ArrayList<GateBlock[]> gatesList = new ArrayList<>();
+    private ArrayList<GlowingSelection> glowingSelections = new ArrayList<>();
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
     public Plugin pluginSimpleGate = this;
 
@@ -190,9 +189,11 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     public void setGate(Player player, String[] args) {
 
-        if (selectedLocation1 != null && selectedLocation2 != null && selectedLocation1.getWorld().equals(selectedLocation2.getWorld())) {
+        GlowingSelection selection = getPlayerGlowingSelection(player);
 
-            List<Block> blocks = select(player.getWorld(), selectedLocation1, selectedLocation2);
+        if (selection.getSelectedLocation1() != null && selection.getSelectedLocation2() != null && selection.getSelectedLocation1().getWorld().equals(selection.getSelectedLocation2().getWorld())) {
+
+            List<Block> blocks = select(player.getWorld(), selection.getSelectedLocation1(), selection.getSelectedLocation2());
             Block[] blocksArray = new Block[blocks.size()];
             blocksArray = blocks.toArray(blocksArray);
 
@@ -200,12 +201,14 @@ public class SimpleGates extends JavaPlugin implements Listener {
                 player.sendMessage(pluginPrefix + ChatColor.RED + "\nYou have to specify a name for the gate.\nTry /gate set [name] <force>");
             } else if (args.length >= 2 && blocksArray.length < 11) {
 
-                spawnBlocks(player, args, blocksArray);
+                spawnBlocks(player, args, blocksArray, selection);
+                selection.removeSelectionEffect();
 
             } else {
                 if (args.length >= 3 && args[2].matches("^f(orce)?$")) {
 
-                    spawnBlocks(player, args, blocksArray);
+                    spawnBlocks(player, args, blocksArray, selection);
+                    selection.removeSelectionEffect();
 
                 } else {
                     player.sendMessage(pluginPrefix);
@@ -222,12 +225,12 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public void spawnBlocks(Player player, String[] args, Block[] blocksArray) {
+    public void spawnBlocks(Player player, String[] args, Block[] blocksArray, GlowingSelection selection) {
 
         Material material = Material.IRON_BLOCK;
         GateBlock[] arrayForNewGate = ListManager(args[1], blocksArray.length);
         for (int i = 0; i < blocksArray.length; i++) {
-            GateBlock gateBlock = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, args[1], material, pluginSimpleGate);
+            GateBlock gateBlock = new GateBlock(selection.getSelectedLocation1().getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, args[1], material, pluginSimpleGate);
 
             arrayForNewGate[i] = gateBlock;
         }
@@ -449,18 +452,28 @@ public class SimpleGates extends JavaPlugin implements Listener {
         ItemStack item = event.getItem();
         Location playerLocation = event.getPlayer().getLocation();
         playerLocation.setWorld(player.getWorld()); //To be sure about the existence of the world in Location.
+        String playerName = event.getPlayer().getDisplayName();
+        GlowingSelection selection;
+
 
         if (player.hasPermission("gate.selector") && action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK)) {
             if (item != null && item.hasItemMeta() && item.getItemMeta().getDisplayName().equals(META_STRING) && item.getType() == Material.STICK) {
+
+                if(getPlayerGlowingSelection(player) != null) {
+                    selection = getPlayerGlowingSelection(player);
+                }else{
+                    selection = new GlowingSelection(player, pluginSimpleGate);
+                    glowingSelections.add(selection);
+                }
 
                 int posX = event.getClickedBlock().getX();
                 int posY = event.getClickedBlock().getY();
                 int posZ = event.getClickedBlock().getZ();
 
                 if (action.equals((Action.LEFT_CLICK_BLOCK))) {
-                    selectedLocation1 = event.getClickedBlock().getLocation();
+                    selection.setSelectedLocation1(event.getClickedBlock().getLocation());
                 } else {
-                    selectedLocation2 = event.getClickedBlock().getLocation();
+                    selection.setSelectedLocation2(event.getClickedBlock().getLocation());
                 }
 
                 player.sendMessage(
@@ -479,16 +492,16 @@ public class SimpleGates extends JavaPlugin implements Listener {
         }
     }
 
-    /*
-    @EventHandler
-    public static void onBroadcast(BroadcastMessageEvent event) {
-        event.setCancelled(true);
-        event.setMessage("test");
-        Bukkit.getServer().getPlayer("Xerl0x").sendMessage("test as message");
+    public GlowingSelection getPlayerGlowingSelection(Player player) {
 
+        for(GlowingSelection selection : glowingSelections){
+            if(selection.getPlayer().equals(player)) {
+                return selection;
+            }
+        }
+        return null;
     }
 
-     */
 
 
     public static List<Block> select(World world, Location loc1, Location loc2) {
