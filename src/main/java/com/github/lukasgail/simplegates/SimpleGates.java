@@ -6,27 +6,26 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class SimpleGates extends JavaPlugin implements Listener {
-    private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
     private ArrayList<GateBlock[]> gatesList = new ArrayList<>();
     private ArrayList<GlowingSelection> glowingSelections = new ArrayList<>();
+    public ArrayList<LinkedPlayersAndEditors> nowEditing = new ArrayList<>();
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
+    private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
     public Plugin pluginSimpleGate = this;
 
     @Override
@@ -55,14 +54,36 @@ public class SimpleGates extends JavaPlugin implements Listener {
                 }
             }
 
+
             if (command.matches("gate")) {
                 gateCommand(player, argsLowerCase);
-
             }
             return true;
         }
         return false;
     }
+
+    @EventHandler
+    public boolean onPlayerChat(AsyncPlayerChatEvent event) {
+
+        Player player = event.getPlayer();
+        String msg = event.getMessage();
+
+        if (isPlayerEditing(player)) {
+            event.setCancelled(true);
+            player.sendMessage("You are currently editing. Plese exit fitst!");
+
+        }
+
+
+
+
+
+        return false;
+    }
+
+
+
 
 
     public void gateCommand(Player player, String[] args) {
@@ -72,6 +93,12 @@ public class SimpleGates extends JavaPlugin implements Listener {
         } else {
             String arg1 = args[0];
             switch (arg1) {
+                case "create":
+                    ChatGateEditor editor = new ChatGateEditor(player, pluginSimpleGate);
+                    editor.gateCreate();
+                    nowEditing.add(new LinkedPlayersAndEditors(player, editor));
+                    break;
+
                 case "help":
                     helpPage(player);
                     getLogger().info(pluginPrefix + "Help command called.");
@@ -79,7 +106,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
                 case "sel":
                 case "selector":
-                    giveSelectorStick(player);
+                    //giveSelectorStick(player);  In edit mode fore some seconds. Or the Hands. If player selected right Click on Chat or write done.
                     break;
 
                 case "set":
@@ -171,21 +198,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
         player.sendMessage("/gate del/delete - delete  all");
     }
 
-    public void giveSelectorStick(Player player) {
-        if (player.getInventory().firstEmpty() == -1) {
-            player.sendMessage(pluginPrefix);
-            player.sendMessage(ChatColor.RED + "Your inventory is full!");
-        } else {
-            ItemStack stick = new ItemStack(Material.STICK, 1);
-            ItemMeta stickmeta = stick.getItemMeta();
-            stickmeta.setDisplayName(META_STRING);
-            stickmeta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-            stick.setItemMeta(stickmeta);
-
-            player.getInventory().setItem(player.getInventory().firstEmpty(), stick);
-            player.sendMessage(pluginPrefix + ChatColor.WHITE + "A selector stick was given to your inventory.\nClick with the left mouse to select the first position\nand with the right for the second position.");
-        }
-    }
 
     public void setGate(Player player, String[] args) {
 
@@ -374,6 +386,17 @@ public class SimpleGates extends JavaPlugin implements Listener {
         }
 
     }
+
+    public boolean isPlayerEditing(Player player){
+        for (LinkedPlayersAndEditors linked : nowEditing){
+            if (linked.getPlayer().equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     public void invAll(Player player) {
         for (GateBlock[] array : gatesList) {

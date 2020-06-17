@@ -5,9 +5,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -20,6 +23,8 @@ import static com.github.lukasgail.simplegates.SimpleGates.select;
 public class GlowingSelection {
 
     private Plugin pluginSimpleGate;
+    private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
+    private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
     private Player player;
     private String playerName;
     private Location selectedLocation1;
@@ -34,6 +39,25 @@ public class GlowingSelection {
         this.player = player;
         this.playerName = player.getDisplayName();
     }
+
+
+    public void giveSelectorStick(Player player) {
+        if (player.getInventory().firstEmpty() == -1) {
+            player.sendMessage(pluginPrefix);
+            player.sendMessage(ChatColor.RED + "Your inventory is full!");
+        } else {
+            ItemStack stick = new ItemStack(Material.STICK, 1);
+            ItemMeta stickmeta = stick.getItemMeta();
+            stickmeta.setDisplayName(META_STRING);
+            stickmeta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
+            stickmeta.addEnchant(Enchantment.LUCK, 10, true);
+            stick.setItemMeta(stickmeta);
+
+            player.getInventory().setItem(player.getInventory().firstEmpty(), stick);
+            player.sendMessage(pluginPrefix + ChatColor.WHITE + "A selector stick was given to your inventory.\nClick with the left mouse to select the first position\nand with the right for the second position.");
+        }
+    }
+
 
 
     public void glowEffect() {

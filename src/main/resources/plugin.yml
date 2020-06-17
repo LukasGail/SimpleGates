@@ -15,6 +15,11 @@ commands:
     usage: /gate help
     permission: gate.help
     permission-message: You don't have permission gate.help
+  gate create:
+    description: This command opens the gate-creation menu.
+    usage: /gate create
+    permission: gate.create
+    permission-message: You don't have permission gate.creation
   gate sel:
     description: This command gives a selector tool.
     usage: /gate sel
@@ -61,6 +66,7 @@ permissions:
     description: Gives access to all gate commands
     children:
       gate.help: true
+      gate.create: true
       gate.selector: true
       gate.set: true
       gate.move: true
