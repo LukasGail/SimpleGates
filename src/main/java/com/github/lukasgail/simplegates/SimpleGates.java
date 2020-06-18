@@ -27,6 +27,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
     private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
     public Plugin pluginSimpleGate = this;
+    public SimpleGates mainSimpleGates = this;
 
     @Override
     public void onEnable() {
@@ -67,17 +68,18 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public boolean onPlayerChat(AsyncPlayerChatEvent event) {
 
         Player player = event.getPlayer();
-        String msg = event.getMessage();
+        String input = event.getMessage();
 
         if (isPlayerEditing(player)) {
+
+            ChatGateEditor editor = getEditor(player);
+
+            editor.editGate(input);
+
             event.setCancelled(true);
-            player.sendMessage("You are currently editing. Plese exit fitst!");
+
 
         }
-
-
-
-
 
         return false;
     }
@@ -94,9 +96,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
             String arg1 = args[0];
             switch (arg1) {
                 case "create":
-                    ChatGateEditor editor = new ChatGateEditor(player, pluginSimpleGate);
+                    ChatGateEditor editor = getEditor(player);
                     editor.gateCreate();
-                    nowEditing.add(new LinkedPlayersAndEditors(player, editor));
                     break;
 
                 case "help":
@@ -394,6 +395,19 @@ public class SimpleGates extends JavaPlugin implements Listener {
             }
         }
         return false;
+    }
+
+
+    public ChatGateEditor getEditor(Player player){
+        for (LinkedPlayersAndEditors linked : nowEditing){
+            if (linked.getPlayer().equals(player)) {
+                return linked.getEditor();
+            }
+        }
+        ChatGateEditor editor = new ChatGateEditor(player, pluginSimpleGate, mainSimpleGates);
+        nowEditing.add(new LinkedPlayersAndEditors(player, editor));
+
+        return editor;
     }
 
 
