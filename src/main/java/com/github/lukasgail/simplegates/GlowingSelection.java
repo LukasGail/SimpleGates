@@ -41,25 +41,6 @@ public class GlowingSelection {
     }
 
 
-    public void giveSelectorStick(Player player) {
-        if (player.getInventory().firstEmpty() == -1) {
-            player.sendMessage(pluginPrefix);
-            player.sendMessage(ChatColor.RED + "Your inventory is full!");
-        } else {
-            ItemStack stick = new ItemStack(Material.STICK, 1);
-            ItemMeta stickmeta = stick.getItemMeta();
-            stickmeta.setDisplayName(META_STRING);
-            stickmeta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-            stickmeta.addEnchant(Enchantment.LUCK, 10, true);
-            stick.setItemMeta(stickmeta);
-
-            player.getInventory().setItem(player.getInventory().firstEmpty(), stick);
-            player.sendMessage(pluginPrefix + ChatColor.WHITE + "A selector stick was given to your inventory.\nClick with the left mouse to select the first position\nand with the right for the second position.");
-        }
-    }
-
-
-
     public void glowEffect() {
         if (selectedLocation1 != null && selectedLocation2 != null) {
             blocks = select(player.getWorld(), selectedLocation1, selectedLocation2);

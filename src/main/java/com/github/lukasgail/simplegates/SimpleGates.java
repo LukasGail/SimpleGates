@@ -85,9 +85,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-
-
-
     public void gateCommand(Player player, String[] args) {
 
         if (args.length == 0) {
@@ -370,7 +367,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     }
 
-    public void invGate(Player player,String name) {
+    public void invGate(Player player, String name) {
 
         int gateIndex = 0;
         for (GateBlock[] next : gatesList) {
@@ -388,8 +385,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     }
 
-    public boolean isPlayerEditing(Player player){
-        for (LinkedPlayersAndEditors linked : nowEditing){
+    public boolean isPlayerEditing(Player player) {
+        for (LinkedPlayersAndEditors linked : nowEditing) {
             if (linked.getPlayer().equals(player)) {
                 return true;
             }
@@ -398,8 +395,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public ChatGateEditor getEditor(Player player){
-        for (LinkedPlayersAndEditors linked : nowEditing){
+    public ChatGateEditor getEditor(Player player) {
+        for (LinkedPlayersAndEditors linked : nowEditing) {
             if (linked.getPlayer().equals(player)) {
                 return linked.getEditor();
             }
@@ -409,7 +406,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
         return editor;
     }
-
 
 
     public void invAll(Player player) {
@@ -487,21 +483,16 @@ public class SimpleGates extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         Action action = event.getAction();
         ItemStack item = event.getItem();
+        event.getPlayer().getItemInHand();
         Location playerLocation = event.getPlayer().getLocation();
         playerLocation.setWorld(player.getWorld()); //To be sure about the existence of the world in Location.
         String playerName = event.getPlayer().getDisplayName();
-        GlowingSelection selection;
 
 
         if (player.hasPermission("gate.selector") && action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK)) {
-            if (item != null && item.hasItemMeta() && item.getItemMeta().getDisplayName().equals(META_STRING) && item.getType() == Material.STICK) {
+            if (isPlayerEditing(player) && player.getItemInHand().getType().equals(Material.AIR)) {
 
-                if(getPlayerGlowingSelection(player) != null) {
-                    selection = getPlayerGlowingSelection(player);
-                }else{
-                    selection = new GlowingSelection(player, pluginSimpleGate);
-                    glowingSelections.add(selection);
-                }
+                GlowingSelection selection = getEditor(player).getGlowingSelection();
 
                 int posX = event.getClickedBlock().getX();
                 int posY = event.getClickedBlock().getY();
@@ -512,6 +503,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
                 } else {
                     selection.setSelectedLocation2(event.getClickedBlock().getLocation());
                 }
+
+                getEditor(player).editGate("1");
 
                 player.sendMessage(
                         String.format("%s[SimpleGates] Position%d at %s X=%d Y=%d Z=%d %s has been selected!",
@@ -531,14 +524,13 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     public GlowingSelection getPlayerGlowingSelection(Player player) {
 
-        for(GlowingSelection selection : glowingSelections){
-            if(selection.getPlayer().equals(player)) {
+        for (GlowingSelection selection : glowingSelections) {
+            if (selection.getPlayer().equals(player)) {
                 return selection;
             }
         }
         return null;
     }
-
 
 
     public static List<Block> select(World world, Location loc1, Location loc2) {

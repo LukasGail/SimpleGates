@@ -13,6 +13,7 @@ public class ChatGateEditor {
     private Plugin pluginSimppleGates;
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
     private boolean editMode;
+    private boolean selectingPositions;
     private Material material;
     private Location selectedPos1;
     private Location selectedPos2;
@@ -23,6 +24,7 @@ public class ChatGateEditor {
     private String direction;
     private String gateName;
     private String selectedLineToEdit;
+    private GlowingSelection glowingSelection;
     private TextComponent line1;
     private TextComponent line2;
     private TextComponent line3;
@@ -42,6 +44,8 @@ public class ChatGateEditor {
         this.player = player;
         this.pluginSimppleGates = plugin;
         this.mainSimpleGates = mainSimpleGates;
+        this.glowingSelection = new GlowingSelection(player, pluginSimppleGates);
+        this.selectingPositions = false;
         this.permeable = false;
         this.material = Material.IRON_BLOCK;
         this.moveDistance = 0.1;
@@ -105,7 +109,12 @@ public class ChatGateEditor {
                         break;
                     case "0":
                         player.sendMessage("Checking!");
-                        exitEdit();
+                        if(gateCheck()){
+                            summonGate();
+                            exitEdit();
+                            player.sendMessage(ChatColor.GREEN + "Gate created!");
+
+                        }
                         selectedLineToEdit = "none";
                         break;
                     case "back":
@@ -115,11 +124,7 @@ public class ChatGateEditor {
                         break;
 
                     case "cancel":
-                        for (int i = 0; i < mainSimpleGates.nowEditing.size(); i++) {
-                            if (mainSimpleGates.nowEditing.get(i).getPlayer().equals(player)) {
-                                mainSimpleGates.nowEditing.remove(i);
-                            }
-                        }
+                        exitEdit();
                         player.sendMessage("You are no longer editing!");
                         break;
 
@@ -276,7 +281,7 @@ public class ChatGateEditor {
 
                     if (input.equals("u") || input.equals("d") || input.equals("n") || input.equals("s") || input.equals("w") || input.equals("e") || input.equals("nw") || input.equals("ne") || input.equals("sw") || input.equals("se") || input.equals("get")) {
                         if (input.equals("get")) {
-                            setDirection(getCardinalDirection(player));
+                            setDirection(this.mainSimpleGates.getCardinalDirection(player));
                         } else {
                             setDirection(input);
                         }
@@ -365,40 +370,16 @@ public class ChatGateEditor {
 
     }
 
-    public static String getCardinalDirection(Player player) {
-        double rotation = (player.getLocation().getYaw() - 90) % 360;
-        double verticalRotation = player.getLocation().getPitch();
-        if (rotation < 0) {
-            rotation += 360.0;
+    public boolean gateCheck() {
+        if (this.getGateName() != null){
+            if(direction.equals("u") || direction.equals("d") || direction.equals("n") || direction.equals("s") || direction.equals("w") || direction.equals("e") || direction.equals("ne") || direction.equals("nw") || direction.equals("se") || direction.equals("sw")){
+                if(this.selectedPos1 != null && this.selectedPos2 != null) {
+                    return true;
+                }
+            }
         }
-
-        if (verticalRotation < -60) {
-            return "u";
-        } else if (verticalRotation > 60) {
-            return "d";
-        } else if (0 <= rotation && rotation < 22.5) {
-            return "w";
-        } else if (22.5 <= rotation && rotation < 67.5) {
-            return "nw";
-        } else if (67.5 <= rotation && rotation < 112.5) {
-            return "n";
-        } else if (112.5 <= rotation && rotation < 157.5) {
-            return "ne";
-        } else if (157.5 <= rotation && rotation < 202.5) {
-            return "e";
-        } else if (202.5 <= rotation && rotation < 247.5) {
-            return "se";
-        } else if (247.5 <= rotation && rotation < 292.5) {
-            return "s";
-        } else if (292.5 <= rotation && rotation < 337.5) {
-            return "sw";
-        } else if (337.5 <= rotation && rotation < 360.0) {
-            return "w";
-        } else {
-            return null;
-        }
+        return false;
     }
-
 
     public Player getPlayer() {
         return player;
@@ -424,6 +405,14 @@ public class ChatGateEditor {
         this.editMode = editMode;
     }
 
+    public GlowingSelection getGlowingSelection() {
+        return glowingSelection;
+    }
+
+    public void setGlowingSelection(GlowingSelection glowingSelection) {
+        this.glowingSelection = glowingSelection;
+    }
+
     public Material getMaterial() {
         return material;
     }
@@ -433,33 +422,37 @@ public class ChatGateEditor {
     }
 
     public Location getSelectedPos1() {
+        setSelectedPos1();
         return selectedPos1;
     }
 
     public String getSelectedCoordinates1() {
+        setSelectedPos1();
         if (selectedPos1 != null) {
-            return "x= " + selectedPos1.getX() + " y= " + selectedPos1.getY() + " z= " + selectedPos1.getBlockZ();
+            return selectedPos1.getX() + ", " + selectedPos1.getY() + ", " + selectedPos1.getBlockZ();
         }
         return ChatColor.YELLOW + "" + ChatColor.ITALIC + "" + ChatColor.BOLD + "[not set]";
     }
 
-    public void setSelectedPos1(Location selectedPos1) {
-        this.selectedPos1 = selectedPos1;
+    public void setSelectedPos1() {
+        this.selectedPos1 = this.glowingSelection.getSelectedLocation1();
     }
 
     public Location getSelectedPos2() {
+        setSelectedPos2();
         return selectedPos2;
     }
 
     public String getSelectedCoordinates2() {
+        setSelectedPos2();
         if (selectedPos2 != null) {
-            return "x= " + selectedPos2.getX() + " y= " + selectedPos2.getY() + " z= " + selectedPos2.getBlockZ();
+            return selectedPos2.getX() + ", " + selectedPos2.getY() + ", " + selectedPos2.getBlockZ();
         }
         return ChatColor.YELLOW + "" + ChatColor.ITALIC + "" + ChatColor.BOLD + "[not set]";
     }
 
-    public void setSelectedPos2(Location selectedPos2) {
-        this.selectedPos2 = selectedPos2;
+    public void setSelectedPos2() {
+        this.selectedPos2 = this.glowingSelection.getSelectedLocation2();
     }
 
     public boolean isPermeable() {
@@ -526,6 +519,11 @@ public class ChatGateEditor {
     }
 
     public void exitEdit() {
+        for (int i = 0; i < mainSimpleGates.nowEditing.size(); i++) {
+            if (mainSimpleGates.nowEditing.get(i).getPlayer().equals(player)) {
+                mainSimpleGates.nowEditing.remove(i);
+            }
+        }
 
 
     }
