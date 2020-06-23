@@ -44,6 +44,10 @@ public class GlowingSelection {
     public void glowEffect() {
         if (selectedLocation1 != null && selectedLocation2 != null) {
             blocks = select(player.getWorld(), selectedLocation1, selectedLocation2);
+            if (blocks.size() > 201){
+                removeSelectionEffect();
+                return;
+            }
 
 
             removeSelectionEffect();
@@ -159,6 +163,10 @@ public class GlowingSelection {
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
+    }
+
+    public List<Block> getBlocks(){
+        return this.blocks;
     }
 
     public Location getSelectedLocation1() {

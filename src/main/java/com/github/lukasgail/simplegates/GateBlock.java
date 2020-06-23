@@ -32,7 +32,9 @@ public class GateBlock {
         this.loc = new Location(world, x, y, z);
         this.name = name;
         this.material = material;
-        spawnGateBlock(world, this.loc, name);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.pluginSimpleGate, () -> {
+            spawnGateBlock(world, this.loc, name);
+        });
         this.collision = true;
 
     }

@@ -5,8 +5,14 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.List;
+
+import static com.github.lukasgail.simplegates.SimpleGates.getCardinalDirection;
+import static com.github.lukasgail.simplegates.SimpleGates.select;
 
 public class ChatGateEditor {
     private Player player;
@@ -37,6 +43,7 @@ public class ChatGateEditor {
     private TextComponent line0;
     private TextComponent cancel;
     private TextComponent back;
+    private TextComponent getDirection;
     private SimpleGates mainSimpleGates;
 
 
@@ -53,6 +60,11 @@ public class ChatGateEditor {
         this.delay = 0;
         this.direction = ChatColor.YELLOW+""+ChatColor.BOLD+""+ChatColor.ITALIC+"No Direction Set!";
         back = new TextComponent("Click -> " + ChatColor.YELLOW + "Back " + ChatColor.WHITE + "to cancel input.");
+        back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "back"));
+        cancel = new TextComponent(ChatColor.RED + "CANCEL Setup - Click or type \"cancel\"");
+        cancel.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "cancel"));
+        getDirection = new TextComponent("You also can look in a direction and type/click " + ChatColor.BOLD + "" + ChatColor.LIGHT_PURPLE + "get");
+        getDirection.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "get"));
 
     }
 
@@ -104,16 +116,19 @@ public class ChatGateEditor {
                         break;
                     case "9":
                         player.sendMessage("Specify a direction in which the gate should move.\nValid inputs are [u/d/n/s/w/e/nw/ne/sw/se]");
-                        player.sendMessage("You also can look in the direction you want and type " + ChatColor.BOLD + "" + ChatColor.LIGHT_PURPLE + "get");
+                        player.spigot().sendMessage(getDirection);
                         selectedLineToEdit = "9";
                         break;
                     case "0":
                         player.sendMessage("Checking!");
                         if(gateCheck()){
-                            summonGate();
-                            exitEdit();
+                            mainSimpleGates.summonGate(player, this, glowingSelection);
                             player.sendMessage(ChatColor.GREEN + "Gate created!");
+                            exitEdit();
 
+                        }else{
+                            sendGateInterface();
+                            player.sendMessage(ChatColor.RED+"Checking failed! Is everything set?");
                         }
                         selectedLineToEdit = "none";
                         break;
@@ -132,7 +147,6 @@ public class ChatGateEditor {
 
             } else {
                 player.sendMessage("Wrong number to identify the line to edit! Just Click them.");
-                return;
             }
 
         } else {
@@ -219,7 +233,7 @@ public class ChatGateEditor {
                     }
                     try {
                         setMoveDistance(Double.parseDouble(input));
-                    } catch (NullPointerException e) {
+                    } catch (NumberFormatException e) {
 
                         player.sendMessage("That was NOT a valid input. Try something like 0.5");
                         player.spigot().sendMessage(back);
@@ -238,10 +252,9 @@ public class ChatGateEditor {
                         break;
                     }
                     try {
-                        long repetLong = Math.round(Double.parseDouble(input));
-                        double repetDouble = repetLong;
+                        double repetDouble = (double)Math.round(Double.parseDouble(input));
                         setRepetitions(repetDouble);
-                    } catch (NullPointerException e) {
+                    } catch (NumberFormatException e) {
 
                         player.sendMessage("That was NOT a valid input. Try something like 10");
                         player.spigot().sendMessage(back);
@@ -261,7 +274,7 @@ public class ChatGateEditor {
                     }
                     try {
                         setDelay(Integer.parseInt(input));
-                    } catch (NullPointerException e) {
+                    } catch (NumberFormatException e) {
                         player.sendMessage("That was Not a valid number. Only natural numbers are allowed!");
                         player.spigot().sendMessage(back);
                         selectedLineToEdit = "8";
@@ -281,7 +294,7 @@ public class ChatGateEditor {
 
                     if (input.equals("u") || input.equals("d") || input.equals("n") || input.equals("s") || input.equals("w") || input.equals("e") || input.equals("nw") || input.equals("ne") || input.equals("sw") || input.equals("se") || input.equals("get")) {
                         if (input.equals("get")) {
-                            setDirection(this.mainSimpleGates.getCardinalDirection(player));
+                            setDirection(getCardinalDirection(player));
                         } else {
                             setDirection(input);
                         }
@@ -328,7 +341,7 @@ public class ChatGateEditor {
 
         line1 = new TextComponent(ChatColor.AQUA + "[1] Refresh");
         line2 = new TextComponent(ChatColor.AQUA + "[2] Name: " + ChatColor.GOLD + this.getGateName());
-        line3 = new TextComponent(ChatColor.AQUA + "[3] GatePositions: Pos1= " + ChatColor.GOLD + this.getSelectedCoordinates1() + ChatColor.AQUA + "   Pos2= " + ChatColor.GOLD + this.getSelectedCoordinates2());
+        line3 = new TextComponent(ChatColor.AQUA + "[3] GatePositions:\n"+ ChatColor.AQUA +"    Pos1= " + ChatColor.GOLD + this.getSelectedCoordinates1() + ChatColor.AQUA + "   Pos2= " + ChatColor.GOLD + this.getSelectedCoordinates2());
         line4 = new TextComponent(ChatColor.AQUA + "[4] BlockMaterial: " + ChatColor.GOLD + this.getMaterial().toString());
         line5 = new TextComponent(ChatColor.AQUA + "[5] Permeable: " + ChatColor.GOLD + this.isPermeable());
         line6 = new TextComponent(ChatColor.AQUA + "[6] MoveDistance: " + ChatColor.GOLD + this.getMoveDistance());
@@ -336,7 +349,6 @@ public class ChatGateEditor {
         line8 = new TextComponent(ChatColor.AQUA + "[8] Delay: " + ChatColor.GOLD + this.getDelay());
         line9 = new TextComponent(ChatColor.AQUA + "[9] Direction: " + ChatColor.GOLD + this.getDirection());
         line0 = new TextComponent(ChatColor.GREEN + "[0] Done");
-        cancel = new TextComponent(ChatColor.RED + "CANCEL Setup - Click or type \"cancel\"");
 
         line1.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "1"));
         line2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "2"));
@@ -348,8 +360,6 @@ public class ChatGateEditor {
         line8.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "8"));
         line9.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "9"));
         line0.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "0"));
-        back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "back"));
-        cancel.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "cancel"));
 
 
         player.sendMessage("");
@@ -380,6 +390,8 @@ public class ChatGateEditor {
         }
         return false;
     }
+
+
 
     public Player getPlayer() {
         return player;
