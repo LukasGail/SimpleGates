@@ -7,46 +7,78 @@ description: This plugin creates a special gate block that can be moved slowly. 
 commands:
   gate:
     description: This command shows the help page.
-    usage: /<command>
+    usage: /gate
     permission: gate.help
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.help
   gate help:
     description: This command shows the help page.
-    usage: /<command>
+    usage: /gate help
     permission: gate.help
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.help
+  gate create:
+    description: This command opens the gate-creation menu.
+    usage: /gate create
+    permission: gate.create
+    permission-message: You don't have permission gate.creation
   gate sel:
     description: This command gives a selector tool.
-    usage: /<command>
+    usage: /gate sel
     permission: gate.selector
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.selector
   gate set:
-    description: This command sets a new gate.
-    usage: /<command>
+    description: This command sets a new gate. Use force to set a gate bigger than 10 blocks.
+    usage: /gate set <force | f>
     permission: gate.set
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.set
   gate move:
     description: This command can move a gate manually.
-    usage: /<command>
+    usage: /gate move [distance] <direction> <repetitions> <delay between moves>
     permission: gate.move
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.move
   gate del:
     description: This command can delete a gate.
-    usage: /<command>
+    usage: /gate del
     permission: gate.delete
-    permission-message: You don't have permission <permission>
+    permission-message: You don't have permission gate.delete
+  gate inv:
+    description: This command can toggle the collision of a gate.
+    usage: /gate inv [name]
+    permission: gate.inv
+    permission-message: You don't have permission gate.inv
+  gate testinvall:
+    description: This command can toggle the collision of a gate.
+    usage: /gate testinvall [name]
+    permission: gate.testinvall
+    permission-message: You don't have permission gate.testinvall
+  gate list:
+    description: This command lists all available gates.
+    usage: /gate list
+    permission: gate.list
+    permission-message: You don't have permission gate.list
+  gate setmaterial:
+    description: This command set a gate to a new material.
+    usage: /gate list
+    permission: gate.setmaterial
+    permission-message: You don't have permission gate.setmaterial
 
 permissions:
   gate.*:
     description: Gives access to all gate commands
     children:
       gate.help: true
+      gate.create: true
       gate.selector: true
-      gate.info: true
+      gate.set: true
+      gate.move: true
+      gate.delete: true
+      gate.inv: true
+      gate.testinvall: true
+      gate.list: true
+      gate.setmaterial: true
     default: op
   gate.selector:
     description: Allows you to get a gate-selector-tool to yourself
     default: op
-  gate.info:
+  gate.help:
     description: Gives information about the SimpleGates plugin
     default: true

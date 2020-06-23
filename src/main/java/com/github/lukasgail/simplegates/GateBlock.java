@@ -1,24 +1,17 @@
 package com.github.lukasgail.simplegates;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.CommandBlock;
+import org.bukkit.*;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.meta.BlockDataMeta;
 import org.bukkit.loot.LootTable;
-import org.bukkit.loot.LootTables;
-import org.bukkit.loot.Lootable;
-import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
-import org.bukkit.util.Vector;
-
-import javax.naming.Name;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class GateBlock {
 
@@ -26,30 +19,107 @@ public class GateBlock {
     private Material material;
     private boolean collision;
     private int timeAlive;
+    private LootTable lootTable;
     private ArmorStand armorStand;
+    private Shulker shulker;
+    private FallingBlock fallingBlock;
     private int id;
+    private String name;
+    private Plugin pluginSimpleGate;
 
-    public GateBlock(World world, double x, double y, double z) {
-        this.loc = new Location(world, x + 0.5, y, z + 0.5);
-        spawnGateBlock(world, this.loc);
+    public GateBlock(World world, double x, double y, double z, String name, Material material, Plugin pluginSimpleGate) {
+        this.pluginSimpleGate = pluginSimpleGate;
+        this.loc = new Location(world, x, y, z);
+        this.name = name;
+        this.material = material;
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.pluginSimpleGate, () -> {
+            spawnGateBlock(world, this.loc, name);
+        });
+        this.collision = true;
 
     }
 
     @SuppressWarnings("Deprecated")
-    private void spawnGateBlock(World world, Location location) {
+    private void spawnGateBlock(World world, Location location, String name) {
 
-        String command = "summon minecraft:armor_stand " + location.getX() +" "+ location.getY() +" "+ location.getZ() + " {NoGravity:1b,Invulnerable:1b,Small:1b,Marker:1b,Invisible:1b,PersistenceRequired:1b,Tags:[\"slidingDoor\"],Passengers:[{id:\"minecraft:shulker\",NoGravity:1b,Silent:1b,Invulnerable:1b,DeathLootTable:\"null\",PersistenceRequired:1b,NoAI:1b,AttachFace:0b,Tags:[\"slidingDoor\"],ActiveEffects:[{Id:10b,Amplifier:10b,Duration:247483647,ShowParticles:0b},{Id:14b,Amplifier:1b,Duration:247483647,ShowParticles:0b}]},{id:\"minecraft:falling_block\",BlockState:{Name:\"minecraft:iron_block\"},NoGravity:1b,Time:-247483648,DropItem:0b,Tags:[\"slidingDoor\"]}]}";
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+        this.shulker = world.spawn(location, Shulker.class, shulker -> {
 
-        
+            shulker.addScoreboardTag("slidingDoor");
+            shulker.addScoreboardTag(name);
+            shulker.setGravity(false);
+            shulker.setSilent(true);
+            shulker.setInvulnerable(true);
+            shulker.setAI(false);
+            shulker.setCanPickupItems(false);
+            shulker.setHealth(30);
+            shulker.setAbsorptionAmount(30);
+            shulker.setCollidable(false);
+            shulker.setGlowing(false);
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 10, false, false, false)));
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.ABSORPTION, Integer.MAX_VALUE, 10, false, false, false)));
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 10, false, false, false)));
+            shulker.addPotionEffect((new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 10, false, false, false)));
 
-        //this.id = armorStand.getEntityId();
+
+
+            this.fallingBlock = world.spawnFallingBlock(location, material, (byte) 0);
+            fallingBlock.addScoreboardTag("slidingDoor");
+            fallingBlock.addScoreboardTag(name);
+            fallingBlock.setGravity(false);
+            fallingBlock.setInvulnerable(true);
+            fallingBlock.setDropItem(false);
+            fallingBlock.setFallDistance(0);
+            fallingBlock.setGlowing(false);
+            fallingBlock.setTicksLived(1);
+
+
+
+            this.armorStand = world.spawn(location, ArmorStand.class, armorStand -> {
+                armorStand.addScoreboardTag("slidingDoor");
+                armorStand.addScoreboardTag(name);
+                armorStand.setGravity(false);
+                armorStand.setInvulnerable(true);
+                armorStand.setSmall(true);
+                armorStand.setMarker(true);
+                armorStand.setVisible(false);
+                armorStand.setGlowing(false);
+                armorStand.addPassenger(shulker);
+                armorStand.addPassenger(fallingBlock);
+
+
+
+            });
+
+        });
+
+        this.id = armorStand.getEntityId();
+
+        new BukkitRunnable() {
+            public void run() {
+                if(fallingBlock.isDead()) {
+                    this.cancel();
+                } else {
+                    fallingBlock.setTicksLived(1);
+                }
+            }
+        }.runTaskTimer(pluginSimpleGate, 0, 20L);
+
+
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
 
-
     public void despawnGateBlock() {
-
+        this.shulker.remove();
+        this.fallingBlock.remove();
+        this.armorStand.remove();
     }
 
 
@@ -59,6 +129,14 @@ public class GateBlock {
 
     public Material getMaterial() {
         return this.material;
+    }
+
+
+    public Location getLoc() {
+        return loc;
+    }
+    public void setLoc(Location newLoc) {
+        this.loc = newLoc;
     }
 
 
@@ -90,6 +168,9 @@ public class GateBlock {
 
 
     public void setCollision(boolean collision) {
+        if (!collision) {
+            this.shulker.remove();
+        }
         this.collision = collision;
     }
 
@@ -104,6 +185,15 @@ public class GateBlock {
 
     public int getTimeAlive() {
         return this.timeAlive;
+    }
+
+    public void blockUpdate() {
+        //TODO
+    }
+
+
+    public int getId() {
+        return this.id;
     }
 
 

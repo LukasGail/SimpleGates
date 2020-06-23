@@ -6,14 +6,14 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -21,10 +21,13 @@ import java.util.List;
 
 
 public class SimpleGates extends JavaPlugin implements Listener {
-    private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
-    private Location selectedLocation1;
-    private Location selectedLocation2;
+    private ArrayList<GateBlock[]> gatesList = new ArrayList<>();
+    private ArrayList<GlowingSelection> glowingSelections = new ArrayList<>();
+    public ArrayList<LinkedPlayersAndEditors> nowEditing = new ArrayList<>();
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
+    private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
+    public Plugin pluginSimpleGate = this;
+    public SimpleGates mainSimpleGates = this;
 
     @Override
     public void onEnable() {
@@ -52,12 +55,32 @@ public class SimpleGates extends JavaPlugin implements Listener {
                 }
             }
 
+
             if (command.matches("gate")) {
                 gateCommand(player, argsLowerCase);
-
             }
             return true;
         }
+        return false;
+    }
+
+    @EventHandler
+    public boolean onPlayerChat(AsyncPlayerChatEvent event) {
+
+        Player player = event.getPlayer();
+        String input = event.getMessage();
+
+        if (isPlayerEditing(player)) {
+
+            ChatGateEditor editor = getEditor(player);
+
+            editor.editGate(input);
+
+            event.setCancelled(true);
+
+
+        }
+
         return false;
     }
 
@@ -69,6 +92,11 @@ public class SimpleGates extends JavaPlugin implements Listener {
         } else {
             String arg1 = args[0];
             switch (arg1) {
+                case "create":
+                    ChatGateEditor editor = getEditor(player);
+                    editor.gateCreate();
+                    break;
+
                 case "help":
                     helpPage(player);
                     getLogger().info(pluginPrefix + "Help command called.");
@@ -76,45 +104,47 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
                 case "sel":
                 case "selector":
-                    giveSelectorStick(player);
+                    //giveSelectorStick(player);  In edit mode fore some seconds. Or the Hands. If player selected right Click on Chat or write done.
                     break;
 
                 case "set":
-                    setGate(player, args);
+                    //setGate(player, args);
+                    break;
+
+                case "setmaterial":
+                    changeMaterial(player, args[1], args[2]);
                     break;
 
                 case "move":
+                    String moveArguments = pluginPrefix + "\nTry /gate move [number] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>";
                     if (args.length == 1) {
-                        player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                        player.sendMessage(moveArguments);
+                        player.sendMessage("Examples:\nnumber = 0.1\ndirection = n/s/w/e/ne/nw/se/sw/u(up)/d(down)\nrepetitions = 10\ndelay = 1");
                     }
                     if (args.length == 2) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]));
 
                         } catch (Exception e) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     } else if (args.length == 3) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]), args[2]);
                         } catch (Exception e2) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     } else if (args.length == 4) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]), args[2], Long.parseLong(args[3]));
                         } catch (Exception e2) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     } else if (args.length == 5) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]), args[2], Long.parseLong(args[3]), Long.parseLong(args[4]));
                         } catch (Exception e2) {
-                            player.sendMessage("The second argument must be a number.");
-                            player.sendMessage("Try /gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
+                            player.sendMessage(moveArguments);
                         }
                     }
                     break;
@@ -125,10 +155,30 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     delGate();
                     break;
 
+
+                case "inv":
+                    if (args.length >= 2) {
+                        invGate(player, args[1]);
+                    } else {
+                        player.sendMessage("Try /gate inv [gatename]");
+                        player.sendMessage("For a list of Names type /gate list");
+                    }
+                    break;
+
+
+                case "testinvall":
+                    invAll(player);
+                    break;
+
+
+                case "list":
+                    listGates(player);
+                    break;
+
                 default:
                     player.sendMessage(pluginPrefix);
                     player.sendMessage("Wrong arguments?");
-                    player.sendMessage("Try /gate for help.");
+                    player.sendMessage("Try /gate - for help.");
                     break;
             }
         }
@@ -146,56 +196,65 @@ public class SimpleGates extends JavaPlugin implements Listener {
         player.sendMessage("/gate del/delete - delete  all");
     }
 
-    public void giveSelectorStick(Player player) {
-        if (player.getInventory().firstEmpty() == -1) {
-            player.sendMessage(pluginPrefix);
-            player.sendMessage(ChatColor.RED + "Your inventory is full!");
-        } else {
-            ItemStack stick = new ItemStack(Material.STICK, 1);
-            ItemMeta stickmeta = stick.getItemMeta();
-            stickmeta.setDisplayName(META_STRING);
-            stickmeta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-            stick.setItemMeta(stickmeta);
 
-            player.getInventory().setItem(player.getInventory().firstEmpty(), stick);
-            player.sendMessage(pluginPrefix);
-            player.sendMessage(ChatColor.GREEN + "A selector stick was given to your inventory.\n            Click with the left mouse to select the first position\n            and with the right for the second position.\n");
-        }
-    }
+    public void summonGate(Player player, ChatGateEditor chatEditor, GlowingSelection selection){
 
-    public void setGate(Player player, String[] args) {
+        if (selection.getSelectedLocation1() != null && selection.getSelectedLocation2() != null && selection.getSelectedLocation1().getWorld().equals(selection.getSelectedLocation2().getWorld())) {
 
-        if (selectedLocation1 != null && selectedLocation2 != null && selectedLocation1.getWorld().equals(selectedLocation2.getWorld())) {
+            Block[] blocksArray = new Block[selection.getBlocks().size()];
+            blocksArray = selection.getBlocks().toArray(blocksArray);
 
-            List<Block> blocks = select(player.getWorld(), selectedLocation1, selectedLocation2);
-            Block[] blocksArray = new Block[blocks.size()];
-            blocksArray = blocks.toArray(blocksArray);
+            selection.removeSelectionEffect();
 
-            if (blocksArray.length < 11) {
+            GateBlock[] arrayForNewGate = listManager(chatEditor.getGateName(), blocksArray.length);
+            for (int i = 0; i < blocksArray.length; i++) {
+                GateBlock gateBlock = new GateBlock(selection.getSelectedLocation1().getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, chatEditor.getGateName(), chatEditor.getMaterial(), pluginSimpleGate);
 
-                for (int i = 0; i < blocksArray.length; i++) {
-                    GateBlock gate = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ());
-                }
-
-            } else {
-                if (args.length >= 2 && args[1].matches("^f(orce)?$")) {
-
-                    for (int i = 0; i < blocksArray.length; i++) {
-                        GateBlock gate = new GateBlock(selectedLocation1.getWorld(), blocksArray[i].getX(), blocksArray[i].getY(), blocksArray[i].getZ());
-                    }
-
-                } else {
-                    player.sendMessage(pluginPrefix);
-                    player.sendMessage(ChatColor.GREEN + "You have selected " + blocksArray.length + " blocks.");
-                    player.sendMessage(ChatColor.GREEN + "[" + ChatColor.GOLD + "Warning" + ChatColor.GREEN + "] A large number of blocks could cause lags.");
-                    player.sendMessage(ChatColor.GREEN + "If you are sure you want to set the Gate type:" + ChatColor.GOLD + " /gate set force  (alternative f) ");
-                }
+                arrayForNewGate[i] = gateBlock;
             }
+
+
+
 
         } else {
             player.sendMessage(pluginPrefix);
             player.sendMessage(ChatColor.RED + "You either have not yet set both selection points or the points are not in the same world!");
         }
+
+    }
+
+
+
+    public void changeMaterial(Player player, String name, String materialString) {
+
+
+        Material material = Material.matchMaterial(materialString);
+        if (material == null) {
+            material = Material.COAL_BLOCK;
+            player.sendMessage("material not found!");
+        }
+
+        int gateIndex = 0;
+
+        for (GateBlock[] next : gatesList) {
+            if (next[0].getName().equals(name)) {
+                GateBlock[] gate = gatesList.get(gateIndex);
+                for (int i = 0; i < gate.length; i++) {
+                    GateBlock oldBlock = gate[i];
+                    gate[i] = new GateBlock(oldBlock.getLoc().getWorld(), oldBlock.getX(), oldBlock.getY(), oldBlock.getZ(), oldBlock.getName(), material, pluginSimpleGate);
+                    oldBlock.despawnGateBlock();
+                }
+                player.sendMessage("gatename: " + name + "was set to material: " + material);
+                break;
+
+            }
+            gateIndex++;
+        }
+
+
+        player.sendMessage("gatename: " + name + "was not found. Try \"/gate list\" for a list of available names");
+
+
     }
 
 
@@ -285,12 +344,72 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
     }
 
-    public void pauseHandler(Player player, Thread thread, long pauseTime){
-        try {
-            thread.wait(pauseTime);
-        }catch (InterruptedException ex){
-            player.sendMessage(ChatColor.RED + "ERROR - Thread pause failed!");
+    public void invGate(Player player, String name) {
+
+        int gateIndex = 0;
+        for (GateBlock[] next : gatesList) {
+            if (next[0].getName().equals(name)) {
+                GateBlock[] gate = gatesList.get(gateIndex);
+                for (GateBlock block : gate) {
+                    block.setCollision(false);
+                }
+                player.sendMessage("Changed collision from: " + name);
+                break;
+
+            }
+            gateIndex++;
         }
+
+    }
+
+    public boolean isPlayerEditing(Player player) {
+        for (LinkedPlayersAndEditors linked : nowEditing) {
+            if (linked.getPlayer().equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public ChatGateEditor getEditor(Player player) {
+        for (LinkedPlayersAndEditors linked : nowEditing) {
+            if (linked.getPlayer().equals(player)) {
+                return linked.getEditor();
+            }
+        }
+        ChatGateEditor editor = new ChatGateEditor(player, pluginSimpleGate, mainSimpleGates);
+        nowEditing.add(new LinkedPlayersAndEditors(player, editor));
+
+        return editor;
+    }
+
+
+    public void invAll(Player player) {
+        for (GateBlock[] array : gatesList) {
+            for (GateBlock block : array) {
+                block.setCollision(false);
+                player.sendMessage(block.getName() + " " + ChatColor.GOLD + block.getId() + ChatColor.GREEN + " collision has been set to " + block.getCollision());
+            }
+        }
+    }
+
+
+    public void listGates(Player player) {
+        String[] gateNamesList = new String[gatesList.size()];
+        for (int i = 0; i < gatesList.size(); i++) {
+            gateNamesList[i] = gatesList.get(i)[0].getName();
+        }
+
+        player.sendMessage(gateNamesList);
+    }
+
+
+    public GateBlock[] listManager(String name, int size) {
+        GateBlock[] arrayToAdd = new GateBlock[size];
+        gatesList.add(arrayToAdd);
+        return gatesList.get(gatesList.size() - 1);
+
     }
 
 
@@ -341,20 +460,34 @@ public class SimpleGates extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         Action action = event.getAction();
         ItemStack item = event.getItem();
+        event.getPlayer().getItemInHand();
         Location playerLocation = event.getPlayer().getLocation();
         playerLocation.setWorld(player.getWorld()); //To be sure about the existence of the world in Location.
+        String playerName = event.getPlayer().getDisplayName();
+
 
         if (player.hasPermission("gate.selector") && action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK)) {
-            if (item != null && item.hasItemMeta() && item.getItemMeta().getDisplayName().equals(META_STRING) && item.getType() == Material.STICK) {
+            if (isPlayerEditing(player) && player.getItemInHand().getType().equals(Material.AIR)) {
+
+                GlowingSelection selection = getEditor(player).getGlowingSelection();
 
                 int posX = event.getClickedBlock().getX();
                 int posY = event.getClickedBlock().getY();
                 int posZ = event.getClickedBlock().getZ();
 
                 if (action.equals((Action.LEFT_CLICK_BLOCK))) {
-                    selectedLocation1 = event.getClickedBlock().getLocation();
+                    selection.setSelectedLocation1(event.getClickedBlock().getLocation());
                 } else {
-                    selectedLocation2 = event.getClickedBlock().getLocation();
+                    selection.setSelectedLocation2(event.getClickedBlock().getLocation());
+                }
+
+                getEditor(player).editGate("1");
+
+                if(selection.getBlocks() != null && selection.getBlocks().size() > 200){
+
+                    player.sendMessage(ChatColor.RED + "\nTo prevent lagging or crashing the selection-preview is disabled when more than 100 blocks are in the selection!");
+                    player.sendMessage(ChatColor.RED + "You can still use your "+ChatColor.GOLD +selection.getBlocks().size()+ ChatColor.RED+"-blocks selection for a gate BUT BE CAREFUL!");
+
                 }
 
                 player.sendMessage(
@@ -373,16 +506,15 @@ public class SimpleGates extends JavaPlugin implements Listener {
         }
     }
 
-    /*
-    @EventHandler
-    public static void onBroadcast(BroadcastMessageEvent event) {
-        event.setCancelled(true);
-        event.setMessage("test");
-        Bukkit.getServer().getPlayer("Xerl0x").sendMessage("test as message");
+    public GlowingSelection getPlayerGlowingSelection(Player player) {
 
+        for (GlowingSelection selection : glowingSelections) {
+            if (selection.getPlayer().equals(player)) {
+                return selection;
+            }
+        }
+        return null;
     }
-
-     */
 
 
     public static List<Block> select(World world, Location loc1, Location loc2) {
@@ -447,4 +579,27 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
+    public ArrayList<GateBlock[]> getGatesList() {
+        return gatesList;
+    }
+
+    public void setGatesList(ArrayList<GateBlock[]> gatesList) {
+        this.gatesList = gatesList;
+    }
+
+    public ArrayList<GlowingSelection> getGlowingSelections() {
+        return glowingSelections;
+    }
+
+    public void setGlowingSelections(ArrayList<GlowingSelection> glowingSelections) {
+        this.glowingSelections = glowingSelections;
+    }
+
+    public ArrayList<LinkedPlayersAndEditors> getNowEditing() {
+        return nowEditing;
+    }
+
+    public void setNowEditing(ArrayList<LinkedPlayersAndEditors> nowEditing) {
+        this.nowEditing = nowEditing;
+    }
 }
