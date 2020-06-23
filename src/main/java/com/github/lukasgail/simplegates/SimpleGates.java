@@ -207,11 +207,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
             selection.removeSelectionEffect();
 
             GateBlock[] arrayForNewGate = listManager(chatEditor.getGateName(), blocksArray.length);
-            player.sendMessage("bruh1");
             for (int i = 0; i < blocksArray.length; i++) {
-                player.sendMessage("bruh2");
                 GateBlock gateBlock = new GateBlock(selection.getSelectedLocation1().getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, chatEditor.getGateName(), chatEditor.getMaterial(), pluginSimpleGate);
-                player.sendMessage("bruh3");
 
                 arrayForNewGate[i] = gateBlock;
             }
