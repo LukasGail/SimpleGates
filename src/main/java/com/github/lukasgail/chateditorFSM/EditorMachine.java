@@ -12,11 +12,12 @@ import org.bukkit.plugin.Plugin;
 
 public class EditorMachine {
 
-    EditorState chatMenu;
+    EditorState mainMenu;
     EditorState waitingForName;
+    EditorState selectionSubMenu;
 
-
-    EditorState chatRedstoneMenu;
+    EditorState waitingForRedstoneButton;
+    EditorState redstoneMenu;
     EditorState waitingForRedstoneButtonDelay;
 
 
@@ -29,8 +30,8 @@ public class EditorMachine {
     private World world;
     private final String pluginPrefix = ChatColor.GREEN + "[SimpleGate]";
     private String gateName;
-    private Location selectedPos1;
-    private Location selectedPos2;
+    private Location selectedLocation1;
+    private Location selectedLocation2;
     private GlowingSelection glowingSelection;
     private Material material;
     private boolean permeable;
@@ -44,24 +45,25 @@ public class EditorMachine {
     private boolean opensOnlyWithPermission;
 
 
-    boolean allImportantStuffIsSetup;
+    boolean readyToSpawn;
 
 
 
 
     public EditorMachine(Player player, Plugin pluginSimpleGates, SimpleGates mainSimpleGates) {
 
-        chatMenu = new ChatMenu(this, player);
+        mainMenu = new MainMenu(this, player);
         waitingForName = new WaitingForName(this, player);
-        chatRedstoneMenu = new ChatRedstoneMenu(this, player);
+        selectionSubMenu = new SelectionSubMenu(this, player);
+        redstoneMenu = new RedstoneMenu(this, player);
         waitingForRedstoneButtonDelay = new WaitingForRedstoneDelay(this, player);
+        waitingForRedstoneButton = new WaitingForRedstoneButton(this, player);
 
-        editorState = chatMenu;
 
         this.player = player;
         this.pluginSimpleGates = pluginSimpleGates;
         this.mainSimpleGates = mainSimpleGates;
-        this.world = player.getWorld();
+        world = player.getWorld();
 
         glowingSelection = new GlowingSelection(player, pluginSimpleGates);
         material = Material.IRON_BLOCK;
@@ -72,175 +74,283 @@ public class EditorMachine {
         redstoneButtonDelay = 0;
         playerRange = 0;
         opensOnlyWithPermission = false;
-        allImportantStuffIsSetup = false;
+        readyToSpawn = false;
 
+        this.editorState = mainMenu;
 
     }
+
 
     void setEditorState(EditorState newEditorState){
         editorState = newEditorState;
     }
 
-    public void enterRedstoneMenu(String string){
-        editorState.enterRedstoneMenu(string);
+    public void sendedInput(String input){
+        editorState.sendedInput(input);
     }
 
 
+    public boolean validInput(String input){
 
-    void setGateName(String name){
-        gateName = name;
+        if(input.matches("[0-9]|done|exit|get")){
+
+            return true;
+        }
+        return false;
     }
 
-    void setBlockPosition1(Location loc){
-        selectedPos1 = loc;
+
+    public void exitSetup() {
+        for (int i = 0; i < mainSimpleGates.nowEditing.size(); i++) {
+            if (mainSimpleGates.nowEditing.get(i).getPlayer().equals(player)) {
+                mainSimpleGates.nowEditing.remove(i);
+                player.sendMessage("You are no longer editing!");
+            }
+        }
+
+
     }
 
-    void setBlockPosition2(Location loc){
-        selectedPos2 = loc;
+
+    public void refresh(){
+        editorState.refresh();
     }
 
-    void setMaterial(Material material){
-        this.material = material;
+    public EditorState getMainMenu() {
+        return mainMenu;
     }
 
-    void setPermeable(boolean bool){
-        this.permeable = bool;
+    public void setMainMenu(EditorState mainMenu) {
+        this.mainMenu = mainMenu;
     }
 
-    void setMoveDistance(double moveDistance){
-        this.moveDistance = moveDistance;
+    public EditorState getRedstoneMenu() {
+        return redstoneMenu;
     }
 
-    void setRepetitions(double repetitions){
-        this.repetitions = repetitions;
-    }
-
-    void setDelay(int delay){
-        this.delay = delay;
-    }
-
-    void setDirection(String direction){
-        this.direction = direction;
-    }
-
-    void setRedstoneButton(Block block){
-        this.redstoneButton = block;
-    }
-
-    void removeRedstoneButton(){
-        this.redstoneButton = null;
-    }
-
-    void setRedstoneButtonDelay(int delay){
-        this.redstoneButtonDelay = delay;
-    }
-
-    void setPlayerRange(int range){
-        this.playerRange = range;
-    }
-
-    void setOpensOnlyWithPermission(boolean bool){
-        this.opensOnlyWithPermission = bool;
-    }
-
-    void setAllImportantStuffIsSetup(boolean bool){
-        this.allImportantStuffIsSetup = bool;
-    }
-
-    void setFinished(){
-
+    public void setRedstoneMenu(EditorState redstoneMenu) {
+        this.redstoneMenu = redstoneMenu;
     }
 
     public EditorState getChatMenu() {
-        return chatMenu;
+        return mainMenu;
+    }
+
+    public void setChatMenu(EditorState chatMenu) {
+        this.mainMenu = chatMenu;
+    }
+
+    public EditorState getWaitingForName() {
+        return waitingForName;
+    }
+
+    public void setWaitingForName(EditorState waitingForName) {
+        this.waitingForName = waitingForName;
+    }
+
+    public EditorState getChatRedstoneMenu() {
+        return redstoneMenu;
+    }
+
+    public void setChatRedstoneMenu(EditorState chatRedstoneMenu) {
+        this.redstoneMenu = chatRedstoneMenu;
+    }
+
+    public EditorState getWaitingForRedstoneButtonDelay() {
+        return waitingForRedstoneButtonDelay;
+    }
+
+    public void setWaitingForRedstoneButtonDelay(EditorState waitingForRedstoneButtonDelay) {
+        this.waitingForRedstoneButtonDelay = waitingForRedstoneButtonDelay;
+    }
+
+    public EditorState getEditorState() {
+        return editorState;
     }
 
     public Player getPlayer() {
         return player;
     }
 
-    public World getWorld() {
-        return world;
-    }
-
-    public String getGateName() {
-        return gateName;
-    }
-
-    public Location getSelectedPos1() {
-        return selectedPos1;
-    }
-
-    public Location getSelectedPos2() {
-        return selectedPos2;
-    }
-
-    public GlowingSelection getGlowingSelection() {
-        return glowingSelection;
-    }
-
-    public Material getMaterial() {
-        return material;
-    }
-
-    public boolean isPermeable() {
-        return permeable;
-    }
-
-    public double getMoveDistance() {
-        return moveDistance;
-    }
-
-    public double getRepetitions() {
-        return repetitions;
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-
-    public String getDirection() {
-        return direction;
-    }
-
-    public Block getRedstoneButton() {
-        return redstoneButton;
-    }
-
-    public int getRedstoneButtonDelay() {
-        return redstoneButtonDelay;
-    }
-
-    public int getPlayerRange() {
-        return playerRange;
-    }
-
-    public boolean isOpensOnlyWithPermission() {
-        return opensOnlyWithPermission;
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public Plugin getPluginSimpleGates() {
         return pluginSimpleGates;
     }
 
+    public void setPluginSimpleGates(Plugin pluginSimpleGates) {
+        this.pluginSimpleGates = pluginSimpleGates;
+    }
+
     public SimpleGates getMainSimpleGates() {
         return mainSimpleGates;
+    }
+
+    public void setMainSimpleGates(SimpleGates mainSimpleGates) {
+        this.mainSimpleGates = mainSimpleGates;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
     }
 
     public String getPluginPrefix() {
         return pluginPrefix;
     }
 
-    public boolean isAllImportantStuffIsSetup() {
-        return allImportantStuffIsSetup;
+    public String getGateName() {
+        return gateName;
     }
 
-    public boolean checkInputs(){
-        return true;
+    public void setGateName(String gateName) {
+        this.gateName = gateName;
     }
 
-    public void setCancelSetup(){
-
+    public String getGateNameNeverNull(String gateName){
+        if(this.gateName != null){
+            return this.gateName;
+        }
+        return ChatColor.YELLOW+""+ChatColor.BOLD+"[No name set]";
     }
 
+    public Location getSelectedLocation1() {
+        return selectedLocation1;
+    }
+
+    public void setSelectedLocation1(Location selectedLocation1) {
+        this.selectedLocation1 = selectedLocation1;
+    }
+
+    public Location getSelectedLocation2() {
+        return selectedLocation2;
+    }
+
+    public void setSelectedLocation2(Location selectedLocation2) {
+        this.selectedLocation2 = selectedLocation2;
+    }
+
+    public String getLocationAsString(Location loc){
+        if(loc !=null){
+            String locationString = loc.getBlock().getX()+","+loc.getBlock().getY()+","+loc.getBlock().getZ();
+            return locationString;
+        }
+        return ChatColor.YELLOW+""+ChatColor.BOLD+"[not set]";
+    }
+
+    public GlowingSelection getGlowingSelection() {
+        return glowingSelection;
+    }
+
+    public void setGlowingSelection(GlowingSelection glowingSelection) {
+        this.glowingSelection = glowingSelection;
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
+    }
+
+    public boolean isPermeable() {
+        return permeable;
+    }
+
+    public void setPermeable(boolean permeable) {
+        this.permeable = permeable;
+    }
+
+    public double getMoveDistance() {
+        return moveDistance;
+    }
+
+    public void setMoveDistance(double moveDistance) {
+        this.moveDistance = moveDistance;
+    }
+
+    public double getRepetitions() {
+        return repetitions;
+    }
+
+    public void setRepetitions(double repetitions) {
+        this.repetitions = repetitions;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public String getDirectionNeverNull(String direction){
+        if(this.direction != null){
+            return getDirection();
+        }
+        return ChatColor.YELLOW+""+ChatColor.BOLD+"[not set]";
+    }
+
+    public Block getRedstoneButton() {
+        return redstoneButton;
+    }
+
+    public void setRedstoneButton(Block redstoneButton) {
+        this.redstoneButton = redstoneButton;
+    }
+
+    public String getRedstoneButtonNeverNull(Block redstoneButton){
+        if(this.redstoneButton != null){
+            return redstoneButton.getType().toString()+" "+redstoneButton.getX()+","+redstoneButton.getY()+","+redstoneButton.getZ();
+        }else{
+            return ChatColor.YELLOW+""+ChatColor.BOLD+"[not set]";
+        }
+    }
+
+    public int getRedstoneButtonDelay() {
+        return redstoneButtonDelay;
+    }
+
+    public void setRedstoneButtonDelay(int redstoneButtonDelay) {
+        this.redstoneButtonDelay = redstoneButtonDelay;
+    }
+
+    public int getPlayerRange() {
+        return playerRange;
+    }
+
+    public void setPlayerRange(int playerRange) {
+        this.playerRange = playerRange;
+    }
+
+    public boolean isOpensOnlyWithPermission() {
+        return opensOnlyWithPermission;
+    }
+
+    public void setOpensOnlyWithPermission(boolean opensOnlyWithPermission) {
+        this.opensOnlyWithPermission = opensOnlyWithPermission;
+    }
+
+    public boolean isReadyToSpawn() {
+        return readyToSpawn;
+    }
+
+    public void setReadyToSpawn(boolean readyToSpawn) {
+        this.readyToSpawn = readyToSpawn;
+    }
 }

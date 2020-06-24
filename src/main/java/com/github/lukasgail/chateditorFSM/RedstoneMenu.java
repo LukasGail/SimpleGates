@@ -7,8 +7,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 
-public class ChatRedstoneMenu implements EditorState{
+public class RedstoneMenu implements EditorState{
 
     EditorMachine editorMachine;
     private Player player;
@@ -27,7 +28,7 @@ public class ChatRedstoneMenu implements EditorState{
     private TextComponent cancelSetup;
     private TextComponent get;
 
-    public ChatRedstoneMenu(EditorMachine editorMachine, Player player){
+    public RedstoneMenu(EditorMachine editorMachine, Player player){
         this.editorMachine = editorMachine;
         this.player = player;
 
@@ -80,7 +81,7 @@ public class ChatRedstoneMenu implements EditorState{
         player.sendMessage(ChatColor.GOLD + "=============== " + editorMachine.getPluginPrefix() + ChatColor.GREEN + " - Gate menu" + ChatColor.GOLD + " ===============");
         player.sendMessage(ChatColor.ITALIC + "" + ChatColor.YELLOW + "You can either click on the lines or enter the number to edit");
         player.sendMessage(ChatColor.STRIKETHROUGH + "" + ChatColor.UNDERLINE + ChatColor.DARK_AQUA + "----------------------------------------------------");
-        player.sendMessage(ChatColor.BLUE + "Main "+ChatColor.GREEN+"> "+ChatColor.BLUE+"ActivationConfig");
+        player.sendMessage(ChatColor.BLUE + "Main "+ChatColor.GREEN+"> "+ChatColor.BLUE+"RedstoneMenu");
         player.spigot().sendMessage(line1);
         player.spigot().sendMessage(line2);
         player.spigot().sendMessage(line3);
@@ -93,93 +94,44 @@ public class ChatRedstoneMenu implements EditorState{
     }
 
 
-    @Override
     public void refresh() {
         chatInterface();
     }
 
     @Override
-    public void enterName(String name) {
+    public void blockClick(PlayerInteractEvent event) {
 
+    }
+
+    public boolean validInput(String input){
+
+        if(input.matches("[0-5]|[done]|[exit]")){
+
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void enterBlockPosition1(Location pos1) {
+    public void sendedInput(String input) {
+
+        if(validInput(input)){
+
+            if (input.equals("1")){
+                chatInterface();
+            }
+
+            if (input.equals("2")){
+                editorMachine.setEditorState(editorMachine.waitingForName);
+                player.sendMessage("Please enter a name!");
+            }
+
+
+        }
+
+
 
     }
 
-    @Override
-    public void enterBlockPosition2(Location pos2) {
 
-    }
-
-    @Override
-    public void enterMaterial(Material material) {
-
-    }
-
-    @Override
-    public void togglePermeability(Boolean bool) {
-
-    }
-
-    @Override
-    public void enterMoveDistance(Double moveDistance) {
-
-    }
-
-    @Override
-    public void enterRepetitions(Double repetitions) {
-
-    }
-
-    @Override
-    public void enterDelay(int delay) {
-
-    }
-
-    @Override
-    public void enterDirection(String direction) {
-
-    }
-
-    @Override
-    public void enterRedstoneButton(Block button) {
-
-    }
-
-    @Override
-    public void enterRedstoneMenu(String string) {
-
-    }
-
-    @Override
-    public void enterRedstoneButtonDelay(int delay) {
-
-    }
-
-    @Override
-    public void enterPlayerRange(int range) {
-
-    }
-
-    @Override
-    public void toggleOpensWithPermission(boolean bool) {
-
-    }
-
-    @Override
-    public void finishEditing() {
-
-    }
-
-    @Override
-    public void cancelInput() {
-
-    }
-
-    @Override
-    public void cancelSetup() {
-
-    }
 }

@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class WaitingForRedstoneDelay implements EditorState{
     EditorMachine editorMachine;
@@ -14,94 +15,27 @@ public class WaitingForRedstoneDelay implements EditorState{
         this.player = player;
     }
 
+    @Override
+    public void sendedInput(String input) {
+
+        editorMachine.setGateName(input);
+        editorMachine.setEditorState(editorMachine.redstoneMenu);
+
+    }
 
     @Override
     public void refresh() {
 
-    }
+        editorMachine.setEditorState(editorMachine.redstoneMenu);
+        editorMachine.getRedstoneMenu().refresh();
 
-    @Override
-    public void enterName(String name) {
-
-    }
-
-    @Override
-    public void enterBlockPosition1(Location pos1) {
 
     }
 
     @Override
-    public void enterBlockPosition2(Location pos2) {
+    public void blockClick(PlayerInteractEvent event) {
 
     }
 
-    @Override
-    public void enterMaterial(Material material) {
 
-    }
-
-    @Override
-    public void togglePermeability(Boolean bool) {
-
-    }
-
-    @Override
-    public void enterMoveDistance(Double moveDistance) {
-
-    }
-
-    @Override
-    public void enterRepetitions(Double repetitions) {
-
-    }
-
-    @Override
-    public void enterDelay(int delay) {
-
-    }
-
-    @Override
-    public void enterDirection(String direction) {
-
-    }
-
-    @Override
-    public void enterRedstoneButton(Block button) {
-
-    }
-
-    @Override
-    public void enterRedstoneMenu(String string) {
-
-    }
-
-    @Override
-    public void enterRedstoneButtonDelay(int delay) {
-
-    }
-
-    @Override
-    public void enterPlayerRange(int range) {
-
-    }
-
-    @Override
-    public void toggleOpensWithPermission(boolean bool) {
-
-    }
-
-    @Override
-    public void finishEditing() {
-
-    }
-
-    @Override
-    public void cancelInput() {
-
-    }
-
-    @Override
-    public void cancelSetup() {
-
-    }
 }
