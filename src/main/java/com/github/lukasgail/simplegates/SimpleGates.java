@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -461,9 +462,14 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public void onPlayerClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Action action = event.getAction();
+        System.out.println("event");
 
-        if (player.hasPermission("gate.selector") && action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK)) {
+        if (player.hasPermission("gate.selector") && (action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK))) {
             if (isPlayerEditing(player)) {
+
+                if(event.getHand() == EquipmentSlot.OFF_HAND){
+                    return;
+                }
 
                 EditorMachine editorMachine = getEditor(player);
                 editorMachine.getEditorState().blockClick(event);
