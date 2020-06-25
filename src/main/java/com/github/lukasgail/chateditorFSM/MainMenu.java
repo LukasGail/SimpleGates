@@ -4,16 +4,14 @@ import com.github.lukasgail.simplegates.GlowingSelection;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class MainMenu implements EditorState{
+public class MainMenu implements EditorState {
 
     EditorMachine editorMachine;
     private Player player;
@@ -33,35 +31,34 @@ public class MainMenu implements EditorState{
     private TextComponent cancelSetup;
     private TextComponent get;
 
-    public MainMenu(EditorMachine editorMachine, Player player){
+    public MainMenu(EditorMachine editorMachine, Player player) {
         this.editorMachine = editorMachine;
         this.player = player;
 
     }
 
-    public void chatInterface(){
+    public void chatInterface() {
 
         char subArrow = '\uFE44';
-        String subArrowString = "  "+subArrow+" ";
+        String subArrowString = "  " + subArrow + " ";
         char cross = '\u2718';
         char checkMark = '\u2714';
 
 
         line1 = new TextComponent(ChatColor.AQUA + "[1] Refresh");
         line2 = new TextComponent(ChatColor.AQUA + "[2] Name: " + ChatColor.GOLD + editorMachine.getGateNameNeverNull(editorMachine.getGateName()));
-        line3 = new TextComponent(ChatColor.AQUA + "[3] Selection: "+ ChatColor.AQUA +"Pos1= " + ChatColor.GOLD + editorMachine.getLocationAsString(editorMachine.getSelectedLocation1()) + ChatColor.AQUA + "   Pos2= " + ChatColor.GOLD + editorMachine.getLocationAsString(editorMachine.getSelectedLocation2()));
-        line4 = new TextComponent(ChatColor.AQUA + ""+subArrowString+"[+] Click for more options.");//polygon or possibility to add single blocks.
-        line5 = new TextComponent(ChatColor.AQUA + "[5] Direction: " + ChatColor.GOLD + editorMachine.getDirectionNeverNull(editorMachine.getDirection())+"   ");
-        line6 = new TextComponent(ChatColor.AQUA + "[6] ActivatorButton(s): "+ ChatColor.GOLD + editorMachine.getRedstoneButtonNeverNull(editorMachine.getRedstoneButton()));//Add remove option for block
-        line7 = new TextComponent(ChatColor.AQUA + ""+subArrowString+"[+] Click for more redstone configurations.");//more buttons possible, Delay, playerInRange  line8 = new TextComponent(ChatColor.AQUA + "[8] Delay: " + ChatColor.GOLD + editorMachine.getDelay());
-        line8 = new TextComponent(ChatColor.AQUA + "[8] GateOptions: "+ChatColor.GRAY+"(BlockMaterial, Permeability,...)"); //BlockMaterial, Permeability, MoveDistance, Repetitions  //line4 = new TextComponent(ChatColor.AQUA + "[4] BlockMaterial: " + ChatColor.GOLD + editorMachine.getMaterial().toString());  //line5 = new TextComponent(ChatColor.AQUA + "[5] Permeable: " + ChatColor.GOLD + editorMachine.isPermeable());  //line6 = new TextComponent(ChatColor.AQUA + "[6] MoveDistance: " + ChatColor.GOLD + editorMachine.getMoveDistance());  //line7 = new TextComponent(ChatColor.AQUA + "[7] Repetitions: " + ChatColor.GOLD + editorMachine.getRepetitions());
+        line3 = new TextComponent(ChatColor.AQUA + "[3] Selection: " + ChatColor.AQUA + "Pos1= " + ChatColor.GOLD + editorMachine.getLocationAsString(editorMachine.getSelectedLocation1()) + ChatColor.AQUA + "   Pos2= " + ChatColor.GOLD + editorMachine.getLocationAsString(editorMachine.getSelectedLocation2()));
+        line4 = new TextComponent(ChatColor.AQUA + "" + subArrowString + "[+] Click for more options.");//polygon or possibility to add single blocks.
+        line5 = new TextComponent(ChatColor.AQUA + "[5] Direction: " + ChatColor.GOLD + editorMachine.getDirectionNeverNull(editorMachine.getDirection()) + "   ");
+        line6 = new TextComponent(ChatColor.AQUA + "[6] ActivatorButton(s): " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons()));//Add remove option for block
+        line7 = new TextComponent(ChatColor.AQUA + "" + subArrowString + "[+] Click for more redstone configurations.");//more buttons possible, Delay, playerInRange  line8 = new TextComponent(ChatColor.AQUA + "[8] Delay: " + ChatColor.GOLD + editorMachine.getDelay());
+        line8 = new TextComponent(ChatColor.AQUA + "[8] GateOptions: " + ChatColor.GRAY + "(BlockMaterial, Permeability,...)"); //BlockMaterial, Permeability, MoveDistance, Repetitions  //line4 = new TextComponent(ChatColor.AQUA + "[4] BlockMaterial: " + ChatColor.GOLD + editorMachine.getMaterial().toString());  //line5 = new TextComponent(ChatColor.AQUA + "[5] Permeable: " + ChatColor.GOLD + editorMachine.isPermeable());  //line6 = new TextComponent(ChatColor.AQUA + "[6] MoveDistance: " + ChatColor.GOLD + editorMachine.getMoveDistance());  //line7 = new TextComponent(ChatColor.AQUA + "[7] Repetitions: " + ChatColor.GOLD + editorMachine.getRepetitions());
         //line9 = new TextComponent(ChatColor.AQUA + "[9]############## : " + ChatColor.GOLD + editorMachine.getDelay());
         //line0 = new TextComponent(ChatColor.GREEN+ "[0] Done!");
-        done = new TextComponent(ChatColor.GREEN+ "      "+checkMark+" Done! "+ checkMark);
-        cancelSetup = new TextComponent(ChatColor.DARK_RED + "      "+cross+" Quit Setup "+cross);
+        done = new TextComponent(ChatColor.GREEN + "      " + checkMark + " Done! " + checkMark);
+        cancelSetup = new TextComponent(ChatColor.DARK_RED + "      " + cross + " Quit Setup " + cross);
         cancelInput = new TextComponent(ChatColor.RED + "[Click to cancel Input]");
-        get = new TextComponent(ChatColor.GREEN+"[Get your direction]");
-
+        get = new TextComponent(ChatColor.GREEN + "[Get your direction]");
 
 
         line1.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "1"));
@@ -105,6 +102,7 @@ public class MainMenu implements EditorState{
     }
 
 
+    @Override
     public void refresh() {
         this.chatInterface();
     }
@@ -117,14 +115,13 @@ public class MainMenu implements EditorState{
         Location playerLocation = event.getPlayer().getLocation();
         playerLocation.setWorld(player.getWorld()); //To be sure about the existence of the world in Location.
 
-        if(player.getItemInHand().getType().equals(Material.AIR)){
+        if (player.getItemInHand().getType().equals(Material.AIR)) {
 
             GlowingSelection selection = editorMachine.getGlowingSelection();
 
             int posX = event.getClickedBlock().getX();
             int posY = event.getClickedBlock().getY();
             int posZ = event.getClickedBlock().getZ();
-
 
 
             if (action.equals((Action.LEFT_CLICK_BLOCK))) {
@@ -136,10 +133,10 @@ public class MainMenu implements EditorState{
                 editorMachine.setSelectedLocation2(event.getClickedBlock().getLocation());
             }
 
-            if(selection.getBlocks() != null && selection.getBlocks().size() > 200){
+            if (selection.getBlocks() != null && selection.getBlocks().size() > 200) {
 
                 player.sendMessage(ChatColor.RED + "\nTo prevent lagging or crashing the selection-preview is disabled when more than 200 blocks are in the selection!");
-                player.sendMessage(ChatColor.RED + "You can still use your "+ChatColor.GOLD +selection.getBlocks().size()+ ChatColor.RED+"-blocks selection for a gate BUT BE CAREFUL!");
+                player.sendMessage(ChatColor.RED + "You can still use your " + ChatColor.GOLD + selection.getBlocks().size() + ChatColor.RED + "-blocks selection for a gate BUT BE CAREFUL!");
 
             }
 
@@ -165,12 +162,12 @@ public class MainMenu implements EditorState{
     @Override
     public void sendedInput(String input) {
 
-        if(editorMachine.validInput(input)){
+        if (editorMachine.validInput(input)) {
 
 
             TextComponent message;
 
-            switch (input){
+            switch (input) {
                 case "1":
                     chatInterface();
                     break;
@@ -215,7 +212,12 @@ public class MainMenu implements EditorState{
                     break;
 
                 case "done":
-                    chatInterface();
+                    if(editorMachine.gateReadyToCreateCheck()){
+                        player.sendMessage("GateCreation complete!");
+                    }else{
+                        player.sendMessage("Please check if all is setup properly\nSomething is missing to create the gate\nImportant things are: Name, Selection, Direction, Button.");
+                    }
+
                     break;
 
                 case "exit":
@@ -233,11 +235,10 @@ public class MainMenu implements EditorState{
 
             }
 
-        }else{
+        } else {
             player.sendMessage("That was not a valid input. Please Click on lines or enter a number.");
         }
 
     }
-
 
 }

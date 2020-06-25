@@ -2,11 +2,13 @@ package com.github.lukasgail.chateditorFSM;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
 
 public class WaitingForRedstoneButton implements EditorState{
     EditorMachine editorMachine;
@@ -50,8 +52,13 @@ public class WaitingForRedstoneButton implements EditorState{
 
             //TODO Check that all buttons can be used.
             if(event.getClickedBlock().getType().equals(Material.STONE_BUTTON)){
-                editorMachine.setRedstoneButton(event.getClickedBlock());
-                editorMachine.setEditorState(editorMachine.mainMenu);
+                if(editorMachine.getRedstoneButtons().size() == 0 || !isButtonAlreadyInList(editorMachine.getRedstoneButtons(), event.getClickedBlock())){
+                    editorMachine.getRedstoneButtons().add((event.getClickedBlock()));
+                    editorMachine.setEditorState(editorMachine.mainMenu);
+                }else{
+                    player.sendMessage("That button is already selected!");
+                    return;
+                }
                 refresh();
             }else{
                 player.sendMessage("That was not a StoneButton!");
@@ -60,7 +67,16 @@ public class WaitingForRedstoneButton implements EditorState{
             event.setCancelled(true);
         }
 
+    }
 
+    public boolean isButtonAlreadyInList(ArrayList<Block>blockArrayList, Block blockToAdd){
+
+        for(Block block : blockArrayList){
+            if(block.getLocation().equals(blockToAdd.getLocation())){
+                return true;
+            }
+        }
+        return false;
     }
 
 

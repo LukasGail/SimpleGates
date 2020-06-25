@@ -462,7 +462,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public void onPlayerClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Action action = event.getAction();
-        System.out.println("event");
 
         if (player.hasPermission("gate.selector") && (action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK))) {
             if (isPlayerEditing(player)) {

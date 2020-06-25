@@ -70,7 +70,7 @@ public class RedstoneMenu implements EditorState{
     public void chatInterface(){
 
         line1 = new TextComponent(ChatColor.AQUA + "[1] Refresh");
-        line2 = new TextComponent(ChatColor.AQUA + "[2] RedstoneButton: " + ChatColor.GOLD + editorMachine.getRedstoneButton());
+        line2 = new TextComponent(ChatColor.AQUA + "[2] RedstoneButton: " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons()));
         line3 = new TextComponent(ChatColor.AQUA + "[3] RedstoneButtonDelay: "+ ChatColor.GOLD + editorMachine.getRedstoneButtonDelay());
         line4 = new TextComponent(ChatColor.AQUA + "[4] ActivateWhenPlayerInRange: " + ChatColor.GOLD + editorMachine.getPlayerRange());
         line5 = new TextComponent(ChatColor.AQUA + "[5] OpensOnlyWithPermission: " + ChatColor.GOLD + editorMachine.isOpensOnlyWithPermission());
@@ -81,7 +81,7 @@ public class RedstoneMenu implements EditorState{
         player.sendMessage(ChatColor.GOLD + "=============== " + editorMachine.getPluginPrefix() + ChatColor.GREEN + " - Gate menu" + ChatColor.GOLD + " ===============");
         player.sendMessage(ChatColor.ITALIC + "" + ChatColor.YELLOW + "You can either click on the lines or enter the number to edit");
         player.sendMessage(ChatColor.STRIKETHROUGH + "" + ChatColor.UNDERLINE + ChatColor.DARK_AQUA + "----------------------------------------------------");
-        player.sendMessage(ChatColor.BLUE + "Main "+ChatColor.GREEN+"> "+ChatColor.BLUE+"RedstoneMenu");
+        player.sendMessage(ChatColor.DARK_BLUE + "Main "+ChatColor.GREEN+"> "+ChatColor.BLUE+"RedstoneMenu");
         player.spigot().sendMessage(line1);
         player.spigot().sendMessage(line2);
         player.spigot().sendMessage(line3);

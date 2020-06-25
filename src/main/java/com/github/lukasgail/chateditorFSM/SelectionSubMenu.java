@@ -143,8 +143,6 @@ public class SelectionSubMenu implements EditorState{
         //player.spigot().sendMessage(cancelSetup);
 
 
-
-
     }
 
 

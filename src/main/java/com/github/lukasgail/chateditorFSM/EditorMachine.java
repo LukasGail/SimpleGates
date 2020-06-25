@@ -10,6 +10,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
+
 public class EditorMachine {
 
     EditorState mainMenu;
@@ -39,7 +41,7 @@ public class EditorMachine {
     private double repetitions;
     private int delay;
     private String direction;
-    private Block redstoneButton;
+    private ArrayList<Block> redstoneButtons;
     private int redstoneButtonDelay;
     private int playerRange;
     private boolean opensOnlyWithPermission;
@@ -64,6 +66,7 @@ public class EditorMachine {
         this.pluginSimpleGates = pluginSimpleGates;
         this.mainSimpleGates = mainSimpleGates;
         world = player.getWorld();
+        redstoneButtons = new ArrayList<>();
 
         glowingSelection = new GlowingSelection(player, pluginSimpleGates);
         material = Material.IRON_BLOCK;
@@ -98,6 +101,22 @@ public class EditorMachine {
         }
         return false;
     }
+
+
+
+    public boolean gateReadyToCreateCheck() {
+        if (this.getGateName() != null){
+            if(direction.matches("[u]|[d]|[n]|[s]|[w]|[e]|[nw]|[ne]|[sw]|[se]")){
+                if(glowingSelection.getBlocks() != null && glowingSelection.getBlocks().size() > 0) {
+                    if(redstoneButtons != null && redstoneButtons.size() > 0){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 
 
     public void exitSetup() {
@@ -306,17 +325,17 @@ public class EditorMachine {
         return ChatColor.YELLOW+""+ChatColor.BOLD+"[not set]";
     }
 
-    public Block getRedstoneButton() {
-        return redstoneButton;
+    public ArrayList<Block> getRedstoneButtons() {
+        return redstoneButtons;
     }
 
-    public void setRedstoneButton(Block redstoneButton) {
-        this.redstoneButton = redstoneButton;
+    public void setRedstoneButtons(ArrayList<Block> redstoneButtons) {
+        this.redstoneButtons = redstoneButtons;
     }
 
-    public String getRedstoneButtonNeverNull(Block redstoneButton){
-        if(this.redstoneButton != null){
-            return redstoneButton.getType().toString()+" "+redstoneButton.getX()+","+redstoneButton.getY()+","+redstoneButton.getZ();
+    public String getFirstRedstoneButtonAsStringNeverNull(ArrayList<Block> redstoneButtons){
+        if(this.redstoneButtons != null && this.redstoneButtons.size()>0){
+            return redstoneButtons.get(0).getType().toString()+" "+redstoneButtons.get(0).getX()+","+redstoneButtons.get(0).getY()+","+redstoneButtons.get(0).getZ();
         }else{
             return ChatColor.YELLOW+""+ChatColor.BOLD+"[not set]";
         }
