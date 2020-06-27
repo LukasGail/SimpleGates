@@ -66,15 +66,19 @@ public class RedstoneMenu implements EditorState{
 
     }
 
+    private static String formatMenuString(ChatColor modifier, ChatColor colorModifier, int lineNumber, String name) {
+        return String.format("%s%s[%d] %s", modifier, colorModifier, lineNumber, name);
+    }
+
 
     public void chatInterface(){
 
-        line1 = new TextComponent(ChatColor.AQUA + "[1] Refresh");
+        line1 = new TextComponent(formatMenuString(ChatColor.BOLD, ChatColor.GREEN, 1, "Refresh"));
         line2 = new TextComponent(ChatColor.AQUA + "[2] RedstoneButton: " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons()));
         line3 = new TextComponent(ChatColor.AQUA + "[3] RedstoneButtonDelay: "+ ChatColor.GOLD + editorMachine.getRedstoneButtonDelay());
         line4 = new TextComponent(ChatColor.AQUA + "[4] ActivateWhenPlayerInRange: " + ChatColor.GOLD + editorMachine.getPlayerRange());
         line5 = new TextComponent(ChatColor.AQUA + "[5] OpensOnlyWithPermission: " + ChatColor.GOLD + editorMachine.isOpensOnlyWithPermission());
-        line0 = new TextComponent(ChatColor.GREEN + "[0] Done");
+        line0 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.GREEN, 0, "Done"));
 
 
         player.sendMessage("");
