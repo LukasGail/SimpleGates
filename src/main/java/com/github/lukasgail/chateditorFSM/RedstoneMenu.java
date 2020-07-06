@@ -9,6 +9,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import static com.github.lukasgail.chateditorFSM.EditorMachine.formatMenuString;
+
 public class RedstoneMenu implements EditorState{
 
     EditorMachine editorMachine;
@@ -63,23 +65,42 @@ public class RedstoneMenu implements EditorState{
         cancelSetup.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "exit"));
         get.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "get"));
 
+        done.addExtra(cancelSetup);
 
-    }
-
-    private static String formatMenuString(ChatColor modifier, ChatColor colorModifier, int lineNumber, String name) {
-        return String.format("%s%s[%d] %s", modifier, colorModifier, lineNumber, name);
     }
 
 
     public void chatInterface(){
 
-        line1 = new TextComponent(formatMenuString(ChatColor.BOLD, ChatColor.GREEN, 1, "Refresh"));
-        line2 = new TextComponent(ChatColor.AQUA + "[2] RedstoneButton: " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons()));
-        line3 = new TextComponent(ChatColor.AQUA + "[3] RedstoneButtonDelay: "+ ChatColor.GOLD + editorMachine.getRedstoneButtonDelay());
-        line4 = new TextComponent(ChatColor.AQUA + "[4] ActivateWhenPlayerInRange: " + ChatColor.GOLD + editorMachine.getPlayerRange());
-        line5 = new TextComponent(ChatColor.AQUA + "[5] OpensOnlyWithPermission: " + ChatColor.GOLD + editorMachine.isOpensOnlyWithPermission());
-        line0 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.GREEN, 0, "Done"));
 
+        char subArrow = '\uFE44';
+        String subArrowString = "  "+subArrow+" ";
+        char cross = '\u2718';
+        char checkMark = '\u2714';
+
+        line1 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.AQUA, 1, "Refresh"));
+        line2 = new TextComponent(formatMenuString(ChatColor.RESET,ChatColor.AQUA, 2, "RedstoneButton: " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons())));
+        line3 = new TextComponent(formatMenuString(ChatColor.RESET,ChatColor.AQUA, 3, "RedstoneButtonDelay: "+ ChatColor.GOLD + editorMachine.getRedstoneButtonDelay()));
+        line4 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.AQUA, 4, "ActivateWhenPlayerInRange: " + ChatColor.GOLD + editorMachine.getPlayerRange()));
+        line5 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.AQUA, 5, "OpensOnlyWithPermission: " + ChatColor.GOLD + editorMachine.isOpensOnlyWithPermission()));
+        done = new TextComponent(ChatColor.GREEN+ "      "+checkMark+" Back "+ checkMark);
+        cancelSetup = new TextComponent(ChatColor.DARK_RED + "      "+cross+" Quit Setup "+cross);
+        cancelInput = new TextComponent(ChatColor.RED + "[Click to cancel Input]");
+        get = new TextComponent(ChatColor.GREEN+"[Get your direction]");
+
+
+
+        line1.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "1"));
+        line2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "2"));
+        line3.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "3"));
+        line4.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "4"));
+        line5.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "5"));
+        done.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "done"));
+        cancelSetup.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "exit"));
+        cancelInput.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "cancel"));
+        get.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "get"));
+
+        done.addExtra(cancelSetup);
 
         player.sendMessage("");
         player.sendMessage(ChatColor.GOLD + "=============== " + editorMachine.getPluginPrefix() + ChatColor.GREEN + " - Gate menu" + ChatColor.GOLD + " ===============");
@@ -91,9 +112,9 @@ public class RedstoneMenu implements EditorState{
         player.spigot().sendMessage(line3);
         player.spigot().sendMessage(line4);
         player.spigot().sendMessage(line5);
-        player.spigot().sendMessage(line0);
-        player.spigot().sendMessage(cancelSetup);
-
+        player.sendMessage("");
+        player.spigot().sendMessage(done);
+        player.sendMessage(ChatColor.STRIKETHROUGH + "" + ChatColor.UNDERLINE + ChatColor.DARK_AQUA + "----------------------------------------------------");
 
     }
 
@@ -107,30 +128,57 @@ public class RedstoneMenu implements EditorState{
 
     }
 
-    public boolean validInput(String input){
-
-        if(input.matches("[0-5]|[done]|[exit]")){
-
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public void sendedInput(String input) {
 
-        if(validInput(input)){
+        if(editorMachine.validInput(input)){
 
-            if (input.equals("1")){
-                chatInterface();
+
+            TextComponent message;
+
+            switch (input){
+                case "1":
+                    chatInterface();
+                    break;
+
+                case "2":
+                    player.sendMessage("WorkingOn.");
+                    break;
+
+                case "3":
+                    player.sendMessage("WorkingOn.");
+                    break;
+
+                case "4":
+                    player.sendMessage("WorkingOn.");
+                    break;
+
+                case "5":
+                    player.sendMessage("WorkingOn.");
+                    break;
+
+
+                case "done":
+                    editorMachine.setEditorState(editorMachine.mainMenu);
+                    editorMachine.mainMenu.refresh();
+                    break;
+
+                case "exit":
+                    editorMachine.exitSetup();
+                    break;
+
+                case "get":
+                    refresh();
+                    break;
+
+                default:
+                    player.sendMessage("No valid input found. Click on the lines to edit.");
+
             }
 
-            if (input.equals("2")){
-                editorMachine.setEditorState(editorMachine.waitingForName);
-                player.sendMessage("Please enter a name!");
-            }
-
-
+        }else{
+            player.sendMessage("That was not a valid input. Please Click on lines or enter a number.");
         }
 
 

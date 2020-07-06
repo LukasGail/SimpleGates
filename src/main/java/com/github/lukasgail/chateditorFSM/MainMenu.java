@@ -200,7 +200,8 @@ public class MainMenu implements EditorState {
                     break;
 
                 case "7":
-                    chatInterface();
+                    editorMachine.setEditorState(editorMachine.redstoneMenu);
+                    editorMachine.redstoneMenu.refresh();
                     break;
 
                 case "8":
@@ -213,6 +214,10 @@ public class MainMenu implements EditorState {
 
                 case "done":
                     if(editorMachine.gateReadyToCreateCheck()){
+
+                        editorMachine.getMainSimpleGates().summonGate(player, editorMachine);
+
+
                         player.sendMessage("GateCreation complete!");
                     }else{
                         player.sendMessage("Please check if all is setup properly\nSomething is missing to create the gate\nImportant things are: Name, Selection, Direction, Button.");

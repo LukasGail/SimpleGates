@@ -200,7 +200,9 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public void summonGate(Player player, ChatGateEditor chatEditor, GlowingSelection selection){
+    public void summonGate(Player player, EditorMachine editorMachine){
+
+        GlowingSelection selection = editorMachine.getGlowingSelection();
 
         if (selection.getSelectedLocation1() != null && selection.getSelectedLocation2() != null && selection.getSelectedLocation1().getWorld().equals(selection.getSelectedLocation2().getWorld())) {
 
@@ -209,9 +211,9 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
             selection.removeSelectionEffect();
 
-            GateBlock[] arrayForNewGate = listManager(chatEditor.getGateName(), blocksArray.length);
+            GateBlock[] arrayForNewGate = listManager(editorMachine.getGateName(), blocksArray.length);
             for (int i = 0; i < blocksArray.length; i++) {
-                GateBlock gateBlock = new GateBlock(selection.getSelectedLocation1().getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, chatEditor.getGateName(), chatEditor.getMaterial(), pluginSimpleGate);
+                GateBlock gateBlock = new GateBlock(selection.getSelectedLocation1().getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, editorMachine.getGateName(), editorMachine.getMaterial(), pluginSimpleGate);
 
                 arrayForNewGate[i] = gateBlock;
             }

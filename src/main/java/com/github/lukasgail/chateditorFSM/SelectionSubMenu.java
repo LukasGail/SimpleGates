@@ -47,13 +47,18 @@ public class SelectionSubMenu implements EditorState{
                     break;
 
                 case "2":
-
-                    message = new TextComponent(ChatColor.YELLOW + "Working on that ");
-                    message.addExtra(cancelInput);
-                    player.spigot().sendMessage(message);
+                    player.sendMessage("WorkingOn.");
                     break;
 
                 case "3":
+                    player.sendMessage("WorkingOn.");
+                    break;
+
+                case "4":
+                    player.sendMessage("WorkingOn.");
+                    break;
+
+                case "5":
                     player.sendMessage("WorkingOn.");
                     break;
 
@@ -125,13 +130,12 @@ public class SelectionSubMenu implements EditorState{
         get.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "get"));
 
         done.addExtra(cancelSetup);
-        line5.addExtra(get);
 
         player.sendMessage("");
         player.sendMessage(ChatColor.GOLD + "=============== " + editorMachine.getPluginPrefix() + ChatColor.GREEN + " - Gate menu" + ChatColor.GOLD + " ===============");
         player.sendMessage(ChatColor.ITALIC + "" + ChatColor.YELLOW + "You can either click on the lines or enter the number to edit");
         player.sendMessage(ChatColor.STRIKETHROUGH + "" + ChatColor.UNDERLINE + ChatColor.DARK_AQUA + "----------------------------------------------------");
-        player.sendMessage(ChatColor.BLUE + "Main "+ChatColor.GREEN+"> "+ChatColor.BLUE+"AdvancedSelections");
+        player.sendMessage(ChatColor.DARK_BLUE + "Main "+ChatColor.GREEN+"> "+ChatColor.BLUE+"AdvancedSelections");
         player.spigot().sendMessage(line1);
         player.spigot().sendMessage(line2);
         player.spigot().sendMessage(line3);

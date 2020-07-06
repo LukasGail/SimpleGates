@@ -79,6 +79,8 @@ public class EditorMachine {
         opensOnlyWithPermission = false;
         readyToSpawn = false;
 
+
+
         this.editorState = mainMenu;
 
     }
@@ -95,7 +97,7 @@ public class EditorMachine {
 
     public boolean validInput(String input){
 
-        if(input.matches("[0-9]|done|exit|get")){
+        if(input.matches("[0-9]|done|exit|get|cancel")){
 
             return true;
         }
@@ -106,7 +108,7 @@ public class EditorMachine {
 
     public boolean gateReadyToCreateCheck() {
         if (this.getGateName() != null){
-            if(direction.matches("[u]|[d]|[n]|[s]|[w]|[e]|[nw]|[ne]|[sw]|[se]")){
+            if(direction != null && direction.matches("[u]|[d]|[n]|[s]|[w]|[e]|[nw]|[ne]|[sw]|[se]")){
                 if(glowingSelection.getBlocks() != null && glowingSelection.getBlocks().size() > 0) {
                     if(redstoneButtons != null && redstoneButtons.size() > 0){
                         return true;
@@ -128,6 +130,10 @@ public class EditorMachine {
         }
 
 
+    }
+
+    public static String formatMenuString(ChatColor modifier, ChatColor colorModifier, int lineNumber, String name) {
+        return String.format("%s%s[%d] %s", modifier, colorModifier, lineNumber, name);
     }
 
 
