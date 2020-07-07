@@ -20,11 +20,6 @@ public class RedstoneMenu implements EditorState{
     private TextComponent line3;
     private TextComponent line4;
     private TextComponent line5;
-    private TextComponent line6;
-    private TextComponent line7;
-    private TextComponent line8;
-    private TextComponent line9;
-    private TextComponent line0;
     private TextComponent done;
     private TextComponent cancelInput;
     private TextComponent cancelSetup;
@@ -40,11 +35,6 @@ public class RedstoneMenu implements EditorState{
         line3 = new TextComponent();
         line4 = new TextComponent();
         line5 = new TextComponent();
-        line6 = new TextComponent();
-        line7 = new TextComponent();
-        line8 = new TextComponent();
-        line9 = new TextComponent();
-        line0 = new TextComponent();
         done = new TextComponent();
         cancelInput = new TextComponent();
         cancelSetup = new TextComponent();
@@ -55,11 +45,6 @@ public class RedstoneMenu implements EditorState{
         line3.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "3"));
         line4.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "4"));
         line5.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "5"));
-        line6.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "6"));
-        line7.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "7"));
-        line8.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "8"));
-        line9.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "9"));
-        line0.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "0"));
         done.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "done"));
         cancelInput.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "cancel"));
         cancelSetup.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "exit"));
@@ -78,15 +63,14 @@ public class RedstoneMenu implements EditorState{
         char cross = '\u2718';
         char checkMark = '\u2714';
 
-        line1 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.AQUA, 1, "Refresh"));
-        line2 = new TextComponent(formatMenuString(ChatColor.RESET,ChatColor.AQUA, 2, "RedstoneButton: " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons())));
-        line3 = new TextComponent(formatMenuString(ChatColor.RESET,ChatColor.AQUA, 3, "RedstoneButtonDelay: "+ ChatColor.GOLD + editorMachine.getRedstoneButtonDelay()));
-        line4 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.AQUA, 4, "ActivateWhenPlayerInRange: " + ChatColor.GOLD + editorMachine.getPlayerRange()));
-        line5 = new TextComponent(formatMenuString(ChatColor.RESET, ChatColor.AQUA, 5, "OpensOnlyWithPermission: " + ChatColor.GOLD + editorMachine.isOpensOnlyWithPermission()));
+        line1 = new TextComponent(formatMenuString(ChatColor.AQUA, 1, "Refresh"));
+        line2 = new TextComponent(formatMenuString(ChatColor.AQUA, 2, "RedstoneButton: " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons())));
+        line3 = new TextComponent(formatMenuString(ChatColor.AQUA, 3, "RedstoneButtonDelay: "+ ChatColor.GOLD + editorMachine.getRedstoneButtonDelay()));
+        line4 = new TextComponent(formatMenuString(ChatColor.AQUA, 4, "ActivateWhenPlayerInRange: " + ChatColor.GOLD + editorMachine.getPlayerRange()));
+        line5 = new TextComponent(formatMenuString(ChatColor.AQUA, 5, "OpensOnlyWithPermission: " + ChatColor.GOLD + editorMachine.isOpensOnlyWithPermission()));
         done = new TextComponent(ChatColor.GREEN+ "      "+checkMark+" Back "+ checkMark);
         cancelSetup = new TextComponent(ChatColor.DARK_RED + "      "+cross+" Quit Setup "+cross);
         cancelInput = new TextComponent(ChatColor.RED + "[Click to cancel Input]");
-        get = new TextComponent(ChatColor.GREEN+"[Get your direction]");
 
 
 
@@ -98,7 +82,6 @@ public class RedstoneMenu implements EditorState{
         done.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "done"));
         cancelSetup.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "exit"));
         cancelInput.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "cancel"));
-        get.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "get"));
 
         done.addExtra(cancelSetup);
 
@@ -168,9 +151,6 @@ public class RedstoneMenu implements EditorState{
                     editorMachine.exitSetup();
                     break;
 
-                case "get":
-                    refresh();
-                    break;
 
                 default:
                     player.sendMessage("No valid input found. Click on the lines to edit.");

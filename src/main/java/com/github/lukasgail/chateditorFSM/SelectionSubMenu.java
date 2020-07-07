@@ -6,6 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import static com.github.lukasgail.chateditorFSM.EditorMachine.formatMenuString;
+
 public class SelectionSubMenu implements EditorState{
     EditorMachine editorMachine;
     Player player;
@@ -13,15 +15,8 @@ public class SelectionSubMenu implements EditorState{
     private TextComponent line1;
     private TextComponent line2;
     private TextComponent line3;
-    private TextComponent line3sub;
     private TextComponent line4;
     private TextComponent line5;
-    private TextComponent line6;
-    private TextComponent line7;
-    private TextComponent line7sub;
-    private TextComponent line8;
-    private TextComponent line9;
-    private TextComponent line0;
     private TextComponent done;
     private TextComponent cancelInput;
     private TextComponent cancelSetup;
@@ -72,10 +67,6 @@ public class SelectionSubMenu implements EditorState{
                     editorMachine.exitSetup();
                     break;
 
-                case "get":
-                    refresh();
-                    break;
-
                 default:
                     player.sendMessage("No valid input found. Click on the lines to edit.");
 
@@ -107,11 +98,11 @@ public class SelectionSubMenu implements EditorState{
         char checkMark = '\u2714';
 
 
-        line1 = new TextComponent(ChatColor.AQUA + "[1] Refresh");
-        line2 = new TextComponent(ChatColor.AQUA + "[2] ");
-        line3 = new TextComponent(ChatColor.AQUA + "[3] ");
-        line4 = new TextComponent(ChatColor.AQUA + "[4] ");//polygon or possibility to add single blocks.
-        line5 = new TextComponent(ChatColor.AQUA + "[5] "); //BlockMaterial, Permeability, MoveDistance, Repetitions  //line4 = new TextComponent(ChatColor.AQUA + "[4] BlockMaterial: " + ChatColor.GOLD + editorMachine.getMaterial().toString());  //line5 = new TextComponent(ChatColor.AQUA + "[5] Permeable: " + ChatColor.GOLD + editorMachine.isPermeable());  //line6 = new TextComponent(ChatColor.AQUA + "[6] MoveDistance: " + ChatColor.GOLD + editorMachine.getMoveDistance());  //line7 = new TextComponent(ChatColor.AQUA + "[7] Repetitions: " + ChatColor.GOLD + editorMachine.getRepetitions());
+        line1 = new TextComponent(formatMenuString(ChatColor.AQUA, 1, "Refresh"));
+        line2 = new TextComponent(formatMenuString(ChatColor.AQUA, 2, "Not Implemented"));
+        line3 = new TextComponent(formatMenuString(ChatColor.AQUA, 3, "Not Implemented"));
+        line4 = new TextComponent(formatMenuString(ChatColor.AQUA, 4, "Not Implemented"));
+        line5 = new TextComponent(formatMenuString(ChatColor.AQUA, 5, "Not Implemented"));
         done = new TextComponent(ChatColor.GREEN+ "      "+checkMark+" Back "+ checkMark);
         cancelSetup = new TextComponent(ChatColor.DARK_RED + "      "+cross+" Quit Setup "+cross);
         cancelInput = new TextComponent(ChatColor.RED + "[Click to cancel Input]");

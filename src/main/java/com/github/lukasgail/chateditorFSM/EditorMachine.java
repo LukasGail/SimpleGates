@@ -16,12 +16,14 @@ public class EditorMachine {
 
     EditorState mainMenu;
     EditorState waitingForName;
+    EditorState waitingForRedstoneButton;
+
     EditorState selectionSubMenu;
 
-    EditorState waitingForRedstoneButton;
     EditorState redstoneMenu;
     EditorState waitingForRedstoneButtonDelay;
 
+    EditorState gateOptionsMenu;
 
     EditorState editorState;
 
@@ -60,6 +62,7 @@ public class EditorMachine {
         redstoneMenu = new RedstoneMenu(this, player);
         waitingForRedstoneButtonDelay = new WaitingForRedstoneDelay(this, player);
         waitingForRedstoneButton = new WaitingForRedstoneButton(this, player);
+        gateOptionsMenu = new GateOptionsMenu(this, player);
 
 
         this.player = player;
@@ -132,6 +135,14 @@ public class EditorMachine {
 
     }
 
+    public static String formatMenuString(ChatColor colorModifier, int lineNumber, String name) {
+        return String.format("%s[%d] %s", colorModifier, lineNumber, name);
+    }
+    public static String formatMenuString(ChatColor modifier, String name) {
+        return String.format("%s%s", modifier, name);
+    }public static String formatMenuString(ChatColor modifier, ChatColor colorModifier, String name) {
+        return String.format("%s%s%s", modifier, colorModifier, name);
+    }
     public static String formatMenuString(ChatColor modifier, ChatColor colorModifier, int lineNumber, String name) {
         return String.format("%s%s[%d] %s", modifier, colorModifier, lineNumber, name);
     }

@@ -11,6 +11,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import static com.github.lukasgail.chateditorFSM.EditorMachine.formatMenuString;
+
 public class MainMenu implements EditorState {
 
     EditorMachine editorMachine;
@@ -18,7 +20,6 @@ public class MainMenu implements EditorState {
     private TextComponent line1;
     private TextComponent line2;
     private TextComponent line3;
-    private TextComponent line3sub;
     private TextComponent line4;
     private TextComponent line5;
     private TextComponent line6;
@@ -45,17 +46,15 @@ public class MainMenu implements EditorState {
         char checkMark = '\u2714';
 
 
-        line1 = new TextComponent(ChatColor.AQUA + "[1] Refresh");
-        line2 = new TextComponent(ChatColor.AQUA + "[2] Name: " + ChatColor.GOLD + editorMachine.getGateNameNeverNull(editorMachine.getGateName()));
-        line3 = new TextComponent(ChatColor.AQUA + "[3] Selection: " + ChatColor.AQUA + "Pos1= " + ChatColor.GOLD + editorMachine.getLocationAsString(editorMachine.getSelectedLocation1()) + ChatColor.AQUA + "   Pos2= " + ChatColor.GOLD + editorMachine.getLocationAsString(editorMachine.getSelectedLocation2()));
-        line4 = new TextComponent(ChatColor.AQUA + "" + subArrowString + "[+] Click for more options.");//polygon or possibility to add single blocks.
-        line5 = new TextComponent(ChatColor.AQUA + "[5] Direction: " + ChatColor.GOLD + editorMachine.getDirectionNeverNull(editorMachine.getDirection()) + "   ");
-        line6 = new TextComponent(ChatColor.AQUA + "[6] ActivatorButton(s): " + ChatColor.GOLD + editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons()));//Add remove option for block
-        line7 = new TextComponent(ChatColor.AQUA + "" + subArrowString + "[+] Click for more redstone configurations.");//more buttons possible, Delay, playerInRange  line8 = new TextComponent(ChatColor.AQUA + "[8] Delay: " + ChatColor.GOLD + editorMachine.getDelay());
-        line8 = new TextComponent(ChatColor.AQUA + "[8] GateOptions: " + ChatColor.GRAY + "(BlockMaterial, Permeability,...)"); //BlockMaterial, Permeability, MoveDistance, Repetitions  //line4 = new TextComponent(ChatColor.AQUA + "[4] BlockMaterial: " + ChatColor.GOLD + editorMachine.getMaterial().toString());  //line5 = new TextComponent(ChatColor.AQUA + "[5] Permeable: " + ChatColor.GOLD + editorMachine.isPermeable());  //line6 = new TextComponent(ChatColor.AQUA + "[6] MoveDistance: " + ChatColor.GOLD + editorMachine.getMoveDistance());  //line7 = new TextComponent(ChatColor.AQUA + "[7] Repetitions: " + ChatColor.GOLD + editorMachine.getRepetitions());
-        //line9 = new TextComponent(ChatColor.AQUA + "[9]############## : " + ChatColor.GOLD + editorMachine.getDelay());
-        //line0 = new TextComponent(ChatColor.GREEN+ "[0] Done!");
-        done = new TextComponent(ChatColor.GREEN + "      " + checkMark + " Done! " + checkMark);
+        line1 = new TextComponent(formatMenuString(ChatColor.AQUA, 1, "Refresh"));
+        line2 = new TextComponent(formatMenuString(ChatColor.AQUA, 2, "Name: " + formatMenuString(ChatColor.GOLD, editorMachine.getGateNameNeverNull(editorMachine.getGateName()))));
+        line3 = new TextComponent(formatMenuString(ChatColor.AQUA, 3, "Selection: Pos1= " + formatMenuString(ChatColor.GOLD, editorMachine.getLocationAsString(editorMachine.getSelectedLocation1()) + formatMenuString(ChatColor.AQUA, "   Pos2= ") + formatMenuString(ChatColor.GOLD, editorMachine.getLocationAsString(editorMachine.getSelectedLocation2())))));
+        line4 = new TextComponent(formatMenuString(ChatColor.AQUA, subArrowString + "[+] Click for more options."));//polygon or possibility to add single blocks.
+        line5 = new TextComponent(formatMenuString(ChatColor.AQUA, 5, "Direction: ") + formatMenuString(ChatColor.GOLD, editorMachine.getDirectionNeverNull(editorMachine.getDirection()) + "   "));
+        line6 = new TextComponent(formatMenuString(ChatColor.AQUA, 6, "ActivatorButton(s): ") + formatMenuString(ChatColor.GOLD, editorMachine.getFirstRedstoneButtonAsStringNeverNull(editorMachine.getRedstoneButtons())));//Add remove option for block
+        line7 = new TextComponent(formatMenuString(ChatColor.AQUA, subArrowString + "[+] Click for more redstone configurations."));//more buttons possible, Delay, playerInRange  line8 = new TextComponent(ChatColor.AQUA + "[8] Delay: " + ChatColor.GOLD + editorMachine.getDelay());
+        line8 = new TextComponent(formatMenuString(ChatColor.AQUA, 8, "GateOptions: ") + formatMenuString(ChatColor.GRAY, "(BlockMaterial, Permeability,...)")); //BlockMaterial, Permeability, MoveDistance, Repetitions  //line4 = new TextComponent(ChatColor.AQUA + "[4] BlockMaterial: " + ChatColor.GOLD + editorMachine.getMaterial().toString());  //line5 = new TextComponent(ChatColor.AQUA + "[5] Permeable: " + ChatColor.GOLD + editorMachine.isPermeable());  //line6 = new TextComponent(ChatColor.AQUA + "[6] MoveDistance: " + ChatColor.GOLD + editorMachine.getMoveDistance());  //line7 = new TextComponent(ChatColor.AQUA + "[7] Repetitions: " + ChatColor.GOLD + editorMachine.getRepetitions());
+        done = new TextComponent(ChatColor.GREEN + "      " + checkMark + " Done " + checkMark);
         cancelSetup = new TextComponent(ChatColor.DARK_RED + "      " + cross + " Quit Setup " + cross);
         cancelInput = new TextComponent(ChatColor.RED + "[Click to cancel Input]");
         get = new TextComponent(ChatColor.GREEN + "[Get your direction]");
@@ -69,8 +68,6 @@ public class MainMenu implements EditorState {
         line6.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "6"));
         line7.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "7"));
         line8.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "8"));
-        //line9.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "9"));
-        //line0.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "0"));
         done.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "done"));
         cancelSetup.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "exit"));
         cancelInput.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "cancel"));
@@ -92,7 +89,6 @@ public class MainMenu implements EditorState {
         player.spigot().sendMessage(line6);
         player.spigot().sendMessage(line7);
         player.spigot().sendMessage(line8);
-        player.spigot().sendMessage(line9);
         player.sendMessage("");
         player.spigot().sendMessage(done);
         player.sendMessage(ChatColor.STRIKETHROUGH + "" + ChatColor.UNDERLINE + ChatColor.DARK_AQUA + "----------------------------------------------------");
@@ -133,12 +129,6 @@ public class MainMenu implements EditorState {
                 editorMachine.setSelectedLocation2(event.getClickedBlock().getLocation());
             }
 
-            if (selection.getBlocks() != null && selection.getBlocks().size() > 200) {
-
-                player.sendMessage(ChatColor.RED + "\nTo prevent lagging or crashing the selection-preview is disabled when more than 200 blocks are in the selection!");
-                player.sendMessage(ChatColor.RED + "You can still use your " + ChatColor.GOLD + selection.getBlocks().size() + ChatColor.RED + "-blocks selection for a gate BUT BE CAREFUL!");
-
-            }
 
             player.sendMessage(
                     String.format("%s[SimpleGates] Position%d at %s X=%d Y=%d Z=%d %s has been selected!",
@@ -153,6 +143,13 @@ public class MainMenu implements EditorState {
             event.setCancelled(true);
 
             refresh();
+
+            if (selection.getBlocks() != null && selection.getBlocks().size() > 200) {
+
+                player.sendMessage(ChatColor.RED + "\nTo prevent lagging or crashing the selection-preview is disabled when more than 200 blocks are in the selection!");
+                player.sendMessage(ChatColor.RED + "You can still use your " + ChatColor.GOLD + selection.getBlocks().size() + ChatColor.RED + "-blocks selection for a gate BUT BE CAREFUL!");
+
+            }
 
         }
 
@@ -205,22 +202,19 @@ public class MainMenu implements EditorState {
                     break;
 
                 case "8":
-                    chatInterface();
+                    editorMachine.setEditorState(editorMachine.gateOptionsMenu);
+                    editorMachine.gateOptionsMenu.refresh();
                     break;
 
-                case "9":
-                    chatInterface();
-                    break;
 
                 case "done":
                     if(editorMachine.gateReadyToCreateCheck()){
 
                         editorMachine.getMainSimpleGates().summonGate(player, editorMachine);
-
-
                         player.sendMessage("GateCreation complete!");
+                        editorMachine.exitSetup();
                     }else{
-                        player.sendMessage("Please check if all is setup properly\nSomething is missing to create the gate\nImportant things are: Name, Selection, Direction, Button.");
+                        player.sendMessage("Please check if all is setup properly.\nSomething is missing to create the gate.\nImportant things are: Name, Selection, Direction, Button.");
                     }
 
                     break;
