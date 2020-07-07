@@ -1,12 +1,13 @@
 package com.github.lukasgail.simplegates;
 
+import com.github.lukasgail.chateditorFSM.EditorMachine;
 import org.bukkit.entity.Player;
 
 public class LinkedPlayersAndEditors {
     private Player player;
-    private ChatGateEditor editor;
+    private EditorMachine editor;
 
-    public LinkedPlayersAndEditors(Player player, ChatGateEditor editor) {
+    public LinkedPlayersAndEditors(Player player, EditorMachine editor) {
 
         this.player = player;
         this.editor = editor;
@@ -21,11 +22,11 @@ public class LinkedPlayersAndEditors {
         this.player = player;
     }
 
-    public ChatGateEditor getEditor() {
+    public EditorMachine getEditor() {
         return editor;
     }
 
-    public void setEditor(ChatGateEditor editor) {
+    public void setEditor(EditorMachine editor) {
         this.editor = editor;
     }
 }

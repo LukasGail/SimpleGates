@@ -122,7 +122,7 @@ public class ChatGateEditor {
                     case "0":
                         player.sendMessage("Checking!");
                         if(gateCheck()){
-                            mainSimpleGates.summonGate(player, this, glowingSelection);
+                            //mainSimpleGates.summonGate(player, this, glowingSelection);
                             player.sendMessage(ChatColor.GREEN + "Gate created!");
                             exitEdit();
 

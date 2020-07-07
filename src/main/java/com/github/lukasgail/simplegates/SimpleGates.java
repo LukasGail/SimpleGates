@@ -1,5 +1,6 @@
 package com.github.lukasgail.simplegates;
 
+import com.github.lukasgail.chateditorFSM.EditorMachine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.bukkit.*;
@@ -12,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -72,9 +74,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
         if (isPlayerEditing(player)) {
 
-            ChatGateEditor editor = getEditor(player);
-
-            editor.editGate(input);
+            EditorMachine editor = getEditor(player);
+            editor.sendedInput(input);
 
             event.setCancelled(true);
 
@@ -92,9 +93,11 @@ public class SimpleGates extends JavaPlugin implements Listener {
         } else {
             String arg1 = args[0];
             switch (arg1) {
+
                 case "create":
-                    ChatGateEditor editor = getEditor(player);
-                    editor.gateCreate();
+                    EditorMachine editorMachine = getEditor(player);
+                    //EditorMachine editorMachine = new EditorMachine(player, pluginSimpleGate, mainSimpleGates);
+                    editorMachine.getMainMenu().refresh();
                     break;
 
                 case "help":
@@ -197,7 +200,9 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public void summonGate(Player player, ChatGateEditor chatEditor, GlowingSelection selection){
+    public void summonGate(Player player, EditorMachine editorMachine){
+
+        GlowingSelection selection = editorMachine.getGlowingSelection();
 
         if (selection.getSelectedLocation1() != null && selection.getSelectedLocation2() != null && selection.getSelectedLocation1().getWorld().equals(selection.getSelectedLocation2().getWorld())) {
 
@@ -206,9 +211,9 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
             selection.removeSelectionEffect();
 
-            GateBlock[] arrayForNewGate = listManager(chatEditor.getGateName(), blocksArray.length);
+            GateBlock[] arrayForNewGate = listManager(editorMachine.getGateName(), blocksArray.length);
             for (int i = 0; i < blocksArray.length; i++) {
-                GateBlock gateBlock = new GateBlock(selection.getSelectedLocation1().getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, chatEditor.getGateName(), chatEditor.getMaterial(), pluginSimpleGate);
+                GateBlock gateBlock = new GateBlock(selection.getSelectedLocation1().getWorld(), blocksArray[i].getX() + 0.5, blocksArray[i].getY(), blocksArray[i].getZ() + 0.5, editorMachine.getGateName(), editorMachine.getMaterial(), pluginSimpleGate);
 
                 arrayForNewGate[i] = gateBlock;
             }
@@ -372,13 +377,13 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public ChatGateEditor getEditor(Player player) {
+    public EditorMachine getEditor(Player player) {
         for (LinkedPlayersAndEditors linked : nowEditing) {
             if (linked.getPlayer().equals(player)) {
                 return linked.getEditor();
             }
         }
-        ChatGateEditor editor = new ChatGateEditor(player, pluginSimpleGate, mainSimpleGates);
+        EditorMachine editor = new EditorMachine(player, pluginSimpleGate, mainSimpleGates);
         nowEditing.add(new LinkedPlayersAndEditors(player, editor));
 
         return editor;
@@ -459,48 +464,16 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public void onPlayerClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Action action = event.getAction();
-        ItemStack item = event.getItem();
-        event.getPlayer().getItemInHand();
-        Location playerLocation = event.getPlayer().getLocation();
-        playerLocation.setWorld(player.getWorld()); //To be sure about the existence of the world in Location.
-        String playerName = event.getPlayer().getDisplayName();
 
+        if (player.hasPermission("gate.selector") && (action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK))) {
+            if (isPlayerEditing(player)) {
 
-        if (player.hasPermission("gate.selector") && action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK)) {
-            if (isPlayerEditing(player) && player.getItemInHand().getType().equals(Material.AIR)) {
-
-                GlowingSelection selection = getEditor(player).getGlowingSelection();
-
-                int posX = event.getClickedBlock().getX();
-                int posY = event.getClickedBlock().getY();
-                int posZ = event.getClickedBlock().getZ();
-
-                if (action.equals((Action.LEFT_CLICK_BLOCK))) {
-                    selection.setSelectedLocation1(event.getClickedBlock().getLocation());
-                } else {
-                    selection.setSelectedLocation2(event.getClickedBlock().getLocation());
+                if(event.getHand() == EquipmentSlot.OFF_HAND){
+                    return;
                 }
 
-                getEditor(player).editGate("1");
-
-                if(selection.getBlocks() != null && selection.getBlocks().size() > 200){
-
-                    player.sendMessage(ChatColor.RED + "\nTo prevent lagging or crashing the selection-preview is disabled when more than 100 blocks are in the selection!");
-                    player.sendMessage(ChatColor.RED + "You can still use your "+ChatColor.GOLD +selection.getBlocks().size()+ ChatColor.RED+"-blocks selection for a gate BUT BE CAREFUL!");
-
-                }
-
-                player.sendMessage(
-                        String.format("%s[SimpleGates] Position%d at %s X=%d Y=%d Z=%d %s has been selected!",
-                                ChatColor.GREEN,
-                                action.equals(Action.LEFT_CLICK_BLOCK) ? 1 : 2,
-                                ChatColor.GOLD,
-                                posX,
-                                posY,
-                                posZ,
-                                ChatColor.GREEN));
-
-                event.setCancelled(true);
+                EditorMachine editorMachine = getEditor(player);
+                editorMachine.getEditorState().blockClick(event);
 
             }
         }
