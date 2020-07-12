@@ -206,8 +206,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
         if (selection.getSelectedLocation1() != null && selection.getSelectedLocation2() != null && selection.getSelectedLocation1().getWorld().equals(selection.getSelectedLocation2().getWorld())) {
 
-            Block[] blocksArray = new Block[selection.getBlocks().size()];
-            blocksArray = selection.getBlocks().toArray(blocksArray);
+            Block[] blocksArray = (Block[])selection.getBlocks().toArray();
 
             selection.removeSelectionEffect();
 
@@ -242,7 +241,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
         int gateIndex = 0;
 
         for (GateBlock[] next : gatesList) {
-            if (next[0].getName().equals(name)) {
+            if (next[0].getName().toLowerCase().equals(name)) {
                 GateBlock[] gate = gatesList.get(gateIndex);
                 for (int i = 0; i < gate.length; i++) {
                     GateBlock oldBlock = gate[i];
@@ -261,6 +260,26 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
 
     }
+
+
+    public void moveGate(Player player, String name, String direction, String distance, String repetitions, String delay){
+
+        GateBlock[] gateBlocks;
+
+        for(GateBlock[] tempGateArray : gatesList){
+            if(tempGateArray[0].getName().toLowerCase().equals(name.toLowerCase())){
+                gateBlocks = tempGateArray;
+
+                ##################################
+
+
+
+                break;
+            }
+        }
+        player.sendMessage("Gate was not found. /gate list - for a list of all available names.");
+    }
+
 
 
     public void moveGate(Player player, double moveValue) {
@@ -342,7 +361,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
         } else {
             player.sendMessage(pluginPrefix);
             player.sendMessage("/gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
-            player.sendMessage("Wrond direction identifier.\nPossible inputs are n/s/w/e/ne/nw/se/sw/u/up/d/down.");
+            player.sendMessage("Wrong direction identifier.\nPossible inputs are n/s/w/e/ne/nw/se/sw/u/up/d/down.");
             player.sendMessage("You can also look in the desired direction and input no specific direction.");
         }
 
@@ -413,7 +432,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
     public GateBlock[] listManager(String name, int size) {
         GateBlock[] arrayToAdd = new GateBlock[size];
         gatesList.add(arrayToAdd);
-        return gatesList.get(gatesList.size() - 1);
+        return arrayToAdd;
 
     }
 
