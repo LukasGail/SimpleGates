@@ -197,4 +197,15 @@ public class GateBlock {
     }
 
 
+    public ArmorStand getArmorStand() {
+        return armorStand;
+    }
+
+    public Shulker getShulker() {
+        return shulker;
+    }
+
+    public FallingBlock getFallingBlock() {
+        return fallingBlock;
+    }
 }

@@ -17,6 +17,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,6 +125,14 @@ public class SimpleGates extends JavaPlugin implements Listener {
                         player.sendMessage(moveArguments);
                         player.sendMessage("Examples:\nnumber = 0.1\ndirection = n/s/w/e/ne/nw/se/sw/u(up)/d(down)\nrepetitions = 10\ndelay = 1");
                     }
+
+                    if(args.length == 6){
+                        moveGate(player, args[1], args[2], args[3], args[4], args[5]);
+
+                    }
+
+
+                    /*
                     if (args.length == 2) {
                         try {
                             moveGate(player, Double.parseDouble(args[1]));
@@ -150,6 +159,11 @@ public class SimpleGates extends JavaPlugin implements Listener {
                             player.sendMessage(moveArguments);
                         }
                     }
+
+                     */
+
+
+
                     break;
 
 
@@ -206,7 +220,11 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
         if (selection.getSelectedLocation1() != null && selection.getSelectedLocation2() != null && selection.getSelectedLocation1().getWorld().equals(selection.getSelectedLocation2().getWorld())) {
 
-            Block[] blocksArray = (Block[])selection.getBlocks().toArray();
+            List<Block> blocksList = selection.getBlocks();
+            Block[] blocksArray = new Block[blocksList.size()];
+            for (int i = 0; i < blocksArray.length; i++){
+                blocksArray[i] = blocksList.get(i);
+            }
 
             selection.removeSelectionEffect();
 
@@ -262,6 +280,36 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
+    public static void setVectorDirection(Vector vector, String moveDirection, double distanceToMove){
+
+        if(moveDirection.toLowerCase().matches("n")){
+            vector = new Vector(0, 0, -distanceToMove);
+        }else if(moveDirection.toLowerCase().matches("s")){
+            vector = new Vector(0, 0, distanceToMove);
+        }else if(moveDirection.toLowerCase().matches("w")){
+            vector = new Vector(-distanceToMove, 0, 0);
+        }else if(moveDirection.toLowerCase().matches("e")){
+            vector = new Vector(distanceToMove, 0, 0);
+        }else if(moveDirection.toLowerCase().matches("ne")){
+            vector = new Vector(distanceToMove, 0, -distanceToMove);
+        }else if(moveDirection.toLowerCase().matches("se")){
+            vector = new Vector(distanceToMove, 0, distanceToMove);
+        }else if(moveDirection.toLowerCase().matches("nw")){
+            vector = new Vector(-distanceToMove, 0, -distanceToMove);
+        }else if(moveDirection.toLowerCase().matches("sw")){
+            vector = new Vector(-distanceToMove, 0, distanceToMove);
+        }else if(moveDirection.toLowerCase().matches("u")){
+            vector = new Vector(0, distanceToMove, 0);
+        }else if(moveDirection.toLowerCase().matches("d")){
+            vector = new Vector(0, -distanceToMove, 0);
+        }else{
+            vector = new Vector(0, 0, 0);
+        }
+
+    }
+
+
+
     public void moveGate(Player player, String name, String direction, String distance, String repetitions, String delay){
 
         GateBlock[] gateBlocks;
@@ -270,17 +318,22 @@ public class SimpleGates extends JavaPlugin implements Listener {
             if(tempGateArray[0].getName().toLowerCase().equals(name.toLowerCase())){
                 gateBlocks = tempGateArray;
 
-                ##################################
+                MoveSchedulerTask task = new MoveSchedulerTask(gateBlocks, direction, Double.parseDouble(distance));
+                task.setRepetitions(Long.parseLong(repetitions));
+                task.setTaskId(Bukkit.getScheduler().scheduleSyncRepeatingTask(this, task, 0, Integer.parseInt(delay)));
+
+                player.sendMessage("TestIfGateWasFound");
 
 
-
-                break;
+                return;
             }
         }
         player.sendMessage("Gate was not found. /gate list - for a list of all available names.");
     }
 
 
+
+    /*
 
     public void moveGate(Player player, double moveValue) {
         String direction = getCardinalDirection(player);
@@ -352,10 +405,10 @@ public class SimpleGates extends JavaPlugin implements Listener {
             long delayTimeToKillRunnable = delay * repetitions;
             long delayTimerFromInput = delay;
 
-            MoveSchedulerTask task = new MoveSchedulerTask();
-            task.setCommand(command);
-            task.setRepetitions(repetitions);
-            task.setTaskId(Bukkit.getScheduler().scheduleSyncRepeatingTask(this, task, 0, delay));
+            //GateBlock[] test = new GateBlock[4];
+            //MoveSchedulerTask task = new MoveSchedulerTask(test);
+            //task.setRepetitions(repetitions);
+            //task.setTaskId(Bukkit.getScheduler().scheduleSyncRepeatingTask(this, task, 0, delay));
 
 
         } else {
@@ -367,6 +420,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
 
     }
+
+     */
 
     public void invGate(Player player, String name) {
 

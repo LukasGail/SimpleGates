@@ -1,18 +1,25 @@
 package com.github.lukasgail.simplegates;
 
 import org.bukkit.Bukkit;
+import org.bukkit.util.Vector;
 
 public class MoveSchedulerTask implements Runnable{
     private int taskId;
-    private String command;
     private int runs;
     private long repetitions;
+    private double distanceToMove;
+    private String moveDirection;
+    private GateBlock[] gateBlocks;
+    private Vector vector = new Vector();
 
-    public MoveSchedulerTask() {
+    public MoveSchedulerTask(GateBlock[] gateBlocks, String moveDirection, double distanceToMove) {
         this.taskId = 0;
-        this.command = "";
         this.runs = 0;
         this.repetitions = 0;
+        this.gateBlocks = gateBlocks;
+        this.distanceToMove = distanceToMove;
+        this.moveDirection = moveDirection;
+        SimpleGates.setVectorDirection(vector, moveDirection, distanceToMove);
     }
 
     public void setTaskId(int id) {
@@ -20,9 +27,6 @@ public class MoveSchedulerTask implements Runnable{
     }
     public int getTaskId(){
         return taskId;
-    }
-    public void setCommand(String command){
-        this.command = command;
     }
     public int getRuns(){
         return runs;
@@ -38,15 +42,23 @@ public class MoveSchedulerTask implements Runnable{
     @Override
     public void run() {
         if(repetitions == 0) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+
+            for(GateBlock tempBlock : gateBlocks){
+                tempBlock.getArmorStand().teleport(tempBlock.getArmorStand().getLocation().add(vector));
+            }
             cancelTask();
         }else{
             if(runs < repetitions){
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+
+                for(GateBlock tempBlock : gateBlocks){
+                    tempBlock.getArmorStand().teleport(tempBlock.getArmorStand().getLocation().add(vector));
+                }
+
             }else{
                 cancelTask();
             }
         }
         runs++;
     }
+
 }
