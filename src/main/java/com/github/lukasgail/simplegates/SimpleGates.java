@@ -14,7 +14,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -310,7 +309,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
 
 
-    public void moveGate(Player player, String name, String direction, String distance, String repetitions, String delay){
+    public void moveGate(Player player, String name, String direction, String distance, String timesToRun, String delay){
 
         GateBlock[] gateBlocks;
 
@@ -318,8 +317,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
             if(tempGateArray[0].getName().toLowerCase().equals(name.toLowerCase())){
                 gateBlocks = tempGateArray;
 
-                MoveSchedulerTask task = new MoveSchedulerTask(gateBlocks, direction, Double.parseDouble(distance));
-                task.setRepetitions(Long.parseLong(repetitions));
+                MoveSchedulerTask task = new MoveSchedulerTask(gateBlocks, direction, Double.parseDouble(distance), Long.parseLong(timesToRun));
                 task.setTaskId(Bukkit.getScheduler().scheduleSyncRepeatingTask(this, task, 0, Integer.parseInt(delay)));
 
                 player.sendMessage("TestIfGateWasFound");
