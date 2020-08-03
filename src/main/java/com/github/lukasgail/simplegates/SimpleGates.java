@@ -279,7 +279,9 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public static void setVectorDirection(Vector vector, String moveDirection, double distanceToMove){
+    public static Vector setVectorDirection(String moveDirection, double distanceToMove){
+
+        Vector vector = new Vector();
 
         if(moveDirection.toLowerCase().matches("n")){
             vector = new Vector(0, 0, -distanceToMove);
@@ -305,6 +307,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
             vector = new Vector(0, 0, 0);
         }
 
+        return vector;
+
     }
 
 
@@ -320,8 +324,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
                 MoveSchedulerTask task = new MoveSchedulerTask(gateBlocks, direction, Double.parseDouble(distance), Long.parseLong(timesToRun));
                 task.setTaskId(Bukkit.getScheduler().scheduleSyncRepeatingTask(this, task, 0, Integer.parseInt(delay)));
 
-                player.sendMessage("TestIfGateWasFound");
-
 
                 return;
             }
@@ -329,97 +331,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
         player.sendMessage("Gate was not found. /gate list - for a list of all available names.");
     }
 
-
-
-    /*
-
-    public void moveGate(Player player, double moveValue) {
-        String direction = getCardinalDirection(player);
-        moveGate(player, moveValue, direction, 0, 0);
-    }
-
-    public void moveGate(Player player, double moveValue, String direction) {
-        moveGate(player, moveValue, direction, 0, 0);
-    }
-
-    public void moveGate(Player player, double moveValue, String direction, long repetitions) {
-        moveGate(player, moveValue, direction, repetitions, 0);
-    }
-
-    public void moveGate(Player player, double moveValue, String direction, long repetitions, long delay) {
-        if (direction.equals("n") || direction.equals("ne") || direction.equals("e") || direction.equals("se") || direction.equals("s") || direction.equals("sw") || direction.equals("w") || direction.equals("nw") || direction.equals("u") || direction.equals("d") || direction.equals("up") || direction.equals("down")) {
-            if (delay < 1) {
-                delay = 1;
-            }
-
-            String n = "~ ~ ~-" + moveValue;
-            String s = "~ ~ ~" + moveValue;
-            String w = "~-" + moveValue + " ~ ~";
-            String e = "~" + moveValue + " ~ ~";
-            String ne = "~" + moveValue + " ~ ~-" + moveValue;
-            String se = "~" + moveValue + " ~ ~" + moveValue;
-            String nw = "~-" + moveValue + " ~ ~-" + moveValue;
-            String sw = "~-" + moveValue + " ~ ~" + moveValue;
-            String u = "~ ~" + moveValue + " ~";
-            String d = "~ ~-" + moveValue + " ~";
-            String moveResult = "";
-
-
-            switch (direction) {
-                case "n":
-                    moveResult = n;
-                    break;
-                case "s":
-                    moveResult = s;
-                    break;
-                case "w":
-                    moveResult = w;
-                    break;
-                case "e":
-                    moveResult = e;
-                    break;
-                case "ne":
-                    moveResult = ne;
-                    break;
-                case "se":
-                    moveResult = se;
-                    break;
-                case "nw":
-                    moveResult = nw;
-                    break;
-                case "sw":
-                    moveResult = sw;
-                    break;
-                case "u":
-                case "up":
-                    moveResult = u;
-                    break;
-                case "d":
-                case "down":
-                    moveResult = d;
-                    break;
-            }
-            String command = "execute as @e[type=minecraft:armor_stand,tag=slidingDoor] at @s run tp " + moveResult;
-            long delayTimeToKillRunnable = delay * repetitions;
-            long delayTimerFromInput = delay;
-
-            //GateBlock[] test = new GateBlock[4];
-            //MoveSchedulerTask task = new MoveSchedulerTask(test);
-            //task.setRepetitions(repetitions);
-            //task.setTaskId(Bukkit.getScheduler().scheduleSyncRepeatingTask(this, task, 0, delay));
-
-
-        } else {
-            player.sendMessage(pluginPrefix);
-            player.sendMessage("/gate move [value] <direction> <repetitions as number> <delay in ticks (20 ticks = 1 second)>");
-            player.sendMessage("Wrong direction identifier.\nPossible inputs are n/s/w/e/ne/nw/se/sw/u/up/d/down.");
-            player.sendMessage("You can also look in the desired direction and input no specific direction.");
-        }
-
-
-    }
-
-     */
 
     public void invGate(Player player, String name) {
 

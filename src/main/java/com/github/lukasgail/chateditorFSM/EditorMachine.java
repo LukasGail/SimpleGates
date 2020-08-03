@@ -111,7 +111,7 @@ public class EditorMachine {
 
     public boolean gateReadyToCreateCheck() {
         if (this.getGateName() != null){
-            if(direction != null && direction.matches("[u]|[d]|[n]|[s]|[w]|[e]|[nw]|[ne]|[sw]|[se]")){
+            if(direction != null && direction.matches("u|d|n|s|w|e|nw|ne|sw|se")){
                 if(glowingSelection.getBlocks() != null && glowingSelection.getBlocks().size() > 0) {
                     if(redstoneButtons != null && redstoneButtons.size() > 0){
                         return true;

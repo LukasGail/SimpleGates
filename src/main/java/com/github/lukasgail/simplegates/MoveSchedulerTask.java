@@ -13,7 +13,7 @@ public class MoveSchedulerTask implements Runnable{
     private double distanceToMove;
     private String moveDirection;
     private GateBlock[] gateBlocks;
-    private Vector vector = new Vector();
+    private Vector vector;
 
     public MoveSchedulerTask(GateBlock[] gateBlocks, String moveDirection, double distanceToMove, long timesToRun) {
         this.taskId = 0;
@@ -22,8 +22,7 @@ public class MoveSchedulerTask implements Runnable{
         this.gateBlocks = gateBlocks;
         this.distanceToMove = distanceToMove;
         this.moveDirection = moveDirection;
-        //SimpleGates.setVectorDirection(vector, moveDirection, distanceToMove);
-        vector=new Vector(0,1,0);
+        this.vector = SimpleGates.setVectorDirection(moveDirection, distanceToMove);
     }
 
     public void setTaskId(int id) {
@@ -45,28 +44,19 @@ public class MoveSchedulerTask implements Runnable{
 
     @Override
     public void run() {
-        Bukkit.broadcastMessage(vector.toString());
         if(runs < timesToRun) {
-
-            ArmorStand firstArmorstand = gateBlocks[0].getArmorStand();
-            ArmorStand lastArmorstand = gateBlocks[gateBlocks.length-1].getArmorStand();
 
             for(GateBlock tempBlock : gateBlocks){
 
                 ArmorStand tmpArmorStand = tempBlock.getArmorStand();
-                tmpArmorStand.setVisible(true);
                 Shulker tmpShulker = tempBlock.getShulker();
                 FallingBlock tmpFallingBlock = tempBlock.getFallingBlock();
 
-                if((runs % 2) == 0){
-                    firstArmorstand.addPassenger(tmpShulker);
-                    firstArmorstand.addPassenger(tmpFallingBlock);
+                tmpArmorStand.eject();
+                tmpArmorStand.teleport(tmpArmorStand.getLocation().add(vector));
 
-                }else{
-                    lastArmorstand.addPassenger(tmpShulker);
-                    lastArmorstand.addPassenger(tmpFallingBlock);
-                }
-
+                tmpArmorStand.addPassenger(tmpShulker);
+                tmpArmorStand.addPassenger(tmpFallingBlock);
 
             }
         }else{
