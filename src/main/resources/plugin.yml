@@ -1,7 +1,7 @@
 name: SimpleGates
-version: 0.2.0
+version: 0.3.0
 author: Lukas Gail
-api-version: "1.15"
+api-version: "1.16"
 main: com.github.lukasgail.simplegates.SimpleGates
 description: This plugin creates a special gate block that can be moved slowly. The block does not have to be placed to match other blocks and has no collision with other blocks
 commands:
