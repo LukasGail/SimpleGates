@@ -1,6 +1,7 @@
 package com.github.lukasgail.simplegates;
 
 import com.github.lukasgail.chateditorFSM.EditorMachine;
+import com.github.lukasgail.saveAndLoad.DataManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.bukkit.*;
@@ -18,7 +19,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -30,12 +33,31 @@ public class SimpleGates extends JavaPlugin implements Listener {
     private final static String META_STRING = ChatColor.GOLD + "" + ChatColor.BOLD + "Gate selector stick";
     public Plugin pluginSimpleGate = this;
     public SimpleGates mainSimpleGates = this;
+    public DataManager dataManager = new DataManager();
 
     @Override
     public void onEnable() {
         getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[SimpleGates]\tPlugin loaded!");
         getServer().getPluginManager().registerEvents(this, this);
         ((Logger) LogManager.getRootLogger()).addFilter(new CustomConsoleOutputFilter());
+
+
+        File dir = getDataFolder();
+        if (!dir.exists()){
+            if (!dir.mkdir()){
+                System.out.println("Creation of plugin folder failed for plugin: "+ getDescription().getName());
+            }
+        }
+
+        dataManager.data = (HashMap<Integer, GateBlock[]>) dataManager.load(new File(getDataFolder(), "gates.dat"));
+
+
+        if (this.dataManager.data == null){
+            this.dataManager.data = new HashMap<Integer, GateBlock[]>();
+        }
+
+
+
     }
 
 
@@ -168,7 +190,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
                 case "del":
                 case "delete":
-                    delGate();
+                    killAllGateBlocks();
                     break;
 
 
@@ -233,6 +255,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
                 arrayForNewGate[i] = gateBlock;
             }
+            saveGate(arrayForNewGate);
 
 
 
@@ -397,8 +420,24 @@ public class SimpleGates extends JavaPlugin implements Listener {
         GateBlock[] arrayToAdd = new GateBlock[size];
         gatesList.add(arrayToAdd);
         return arrayToAdd;
-
     }
+
+    public void saveGate(GateBlock[] gateBlocksArrayToSave){
+        dataManager.data.put(dataManager.data.size()+1, gateBlocksArrayToSave);
+        saveGatesToFile();
+    }
+
+    public void deleteGate(int i){
+        dataManager.data.remove(i);
+        dataManager.reorderGateNumbers();
+        saveGatesToFile();
+    }
+
+    public void saveGatesToFile(){
+        dataManager.save(dataManager.data, new File(getDataFolder(), "gates.dat"));
+    }
+
+
 
 
     public static String getCardinalDirection(Player player) {
@@ -436,7 +475,8 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public void delGate() {
+    public void killAllGateBlocks() {
+        //TODO
         String command = "kill @e[tag=slidingDoor]";
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 

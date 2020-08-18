@@ -13,13 +13,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class GateBlock {
+import java.io.Serializable;
+
+public class GateBlock implements Serializable {
 
     private Location loc;
     private Material material;
     private boolean collision;
     private int timeAlive;
-    private LootTable lootTable;
     private ArmorStand armorStand;
     private Shulker shulker;
     private FallingBlock fallingBlock;
