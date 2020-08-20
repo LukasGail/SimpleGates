@@ -2,6 +2,12 @@ package com.github.lukasgail.simplegates;
 
 import com.github.lukasgail.chateditorFSM.EditorMachine;
 import com.github.lukasgail.saveAndLoad.DataManager;
+import com.github.lukasgail.saveAndLoad.Gate;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.bukkit.*;
@@ -20,9 +26,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 
 public class SimpleGates extends JavaPlugin implements Listener {
@@ -45,17 +53,36 @@ public class SimpleGates extends JavaPlugin implements Listener {
         File dir = getDataFolder();
         if (!dir.exists()){
             if (!dir.mkdir()){
-                System.out.println("Creation of plugin folder failed for plugin: "+ getDescription().getName());
+                ((Logger) LogManager.getRootLogger()).error("Creation of plugin folder failed for plugin: "+ getDescription().getName());
+            }
+            else {
+                System.out.println("Created plugin folder");
             }
         }
 
-        dataManager.data = (HashMap<Integer, GateBlock[]>) dataManager.load(new File(getDataFolder(), "gates.dat"));
+        // TODO: init database
+        String databaseUrl = "jdbc:sqlite:" + new File(getDataFolder(), "data.db").getAbsolutePath();
+        System.out.println("ConnectionString: " + databaseUrl);
+        try {
+            ConnectionSource connectionSource = new JdbcConnectionSource(databaseUrl);
+            Dao<Gate, String> gateDao = DaoManager.createDao(connectionSource, Gate.class);
+            TableUtils.createTableIfNotExists(connectionSource, Gate.class);
 
+            byte[] array = new byte[7]; // length is bounded by 7
+            new Random().nextBytes(array);
+            String generatedString = new String(array, Charset.forName("UTF-8"));
 
-        if (this.dataManager.data == null){
-            this.dataManager.data = new HashMap<Integer, GateBlock[]>();
+            Gate gate = new Gate();
+            gate.setName(generatedString);
+            gate.setWorld("coole world");
+            gate.setOnlyOpensWithPermission(false);
+
+            gateDao.create(gate);
+            System.out.println(gateDao.queryForId(generatedString).getWorld());
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
-
 
 
     }
@@ -255,7 +282,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
                 arrayForNewGate[i] = gateBlock;
             }
-            saveGate(arrayForNewGate);
 
 
 
@@ -420,21 +446,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
         GateBlock[] arrayToAdd = new GateBlock[size];
         gatesList.add(arrayToAdd);
         return arrayToAdd;
-    }
-
-    public void saveGate(GateBlock[] gateBlocksArrayToSave){
-        dataManager.data.put(dataManager.data.size()+1, gateBlocksArrayToSave);
-        saveGatesToFile();
-    }
-
-    public void deleteGate(int i){
-        dataManager.data.remove(i);
-        dataManager.reorderGateNumbers();
-        saveGatesToFile();
-    }
-
-    public void saveGatesToFile(){
-        dataManager.save(dataManager.data, new File(getDataFolder(), "gates.dat"));
     }
 
 
