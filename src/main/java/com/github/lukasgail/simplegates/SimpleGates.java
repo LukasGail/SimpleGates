@@ -1,6 +1,7 @@
 package com.github.lukasgail.simplegates;
 
 import com.github.lukasgail.chateditorFSM.EditorMachine;
+import com.github.lukasgail.saveAndLoad.BlockLocationAndMaterial;
 import com.github.lukasgail.saveAndLoad.DataManager;
 import com.github.lukasgail.saveAndLoad.Gate;
 import com.j256.ormlite.dao.Dao;
@@ -29,8 +30,10 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 
 public class SimpleGates extends JavaPlugin implements Listener {
@@ -51,34 +54,43 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
 
         File dir = getDataFolder();
-        if (!dir.exists()){
-            if (!dir.mkdir()){
-                ((Logger) LogManager.getRootLogger()).error("Creation of plugin folder failed for plugin: "+ getDescription().getName());
-            }
-            else {
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
+                ((Logger) LogManager.getRootLogger()).error("Creation of plugin folder failed for plugin: " + getDescription().getName());
+            } else {
                 System.out.println("Created plugin folder");
             }
         }
 
         // TODO: init database
-        String databaseUrl = "jdbc:sqlite:" + new File(getDataFolder(), "data.db").getAbsolutePath();
+        String databaseUrl = "jdbc:sqlite:" + new File(getDataFolder(), "gates.db").getAbsolutePath();
         System.out.println("ConnectionString: " + databaseUrl);
         try {
             ConnectionSource connectionSource = new JdbcConnectionSource(databaseUrl);
             Dao<Gate, String> gateDao = DaoManager.createDao(connectionSource, Gate.class);
             TableUtils.createTableIfNotExists(connectionSource, Gate.class);
 
-            byte[] array = new byte[7]; // length is bounded by 7
-            new Random().nextBytes(array);
-            String generatedString = new String(array, Charset.forName("UTF-8"));
+            String generatedString = "randomString";
 
             Gate gate = new Gate();
             gate.setName(generatedString);
             gate.setWorld("coole world");
             gate.setOnlyOpensWithPermission(false);
+            BlockLocationAndMaterial b1 = new BlockLocationAndMaterial();
+            BlockLocationAndMaterial b2 = new BlockLocationAndMaterial();
+            b1.setMaterial("lala");
+            b2.setMaterial("lalala");
+            b1.setX(1);
+            b1.setY(1);
+            b1.setZ(1);
+            b2.setX(2);
+            b2.setY(2);
+            b2.setZ(2);
+            gate.setBlocks(new BlockLocationAndMaterial[]{b1, b2});
 
             gateDao.create(gate);
             System.out.println(gateDao.queryForId(generatedString).getWorld());
+            System.out.println(Arrays.stream(gateDao.queryForId(generatedString).getBlocks()).map(BlockLocationAndMaterial::getMaterial).collect(Collectors.joining(", ")));
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -174,7 +186,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
                         player.sendMessage("Examples:\nnumber = 0.1\ndirection = n/s/w/e/ne/nw/se/sw/u(up)/d(down)\nrepetitions = 10\ndelay = 1");
                     }
 
-                    if(args.length == 6){
+                    if (args.length == 6) {
                         moveGate(player, args[1], args[2], args[3], args[4], args[5]);
 
                     }
@@ -209,7 +221,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
                     }
 
                      */
-
 
 
                     break;
@@ -262,7 +273,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public void summonGate(Player player, EditorMachine editorMachine){
+    public void summonGate(Player player, EditorMachine editorMachine) {
 
         GlowingSelection selection = editorMachine.getGlowingSelection();
 
@@ -270,7 +281,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
 
             List<Block> blocksList = selection.getBlocks();
             Block[] blocksArray = new Block[blocksList.size()];
-            for (int i = 0; i < blocksArray.length; i++){
+            for (int i = 0; i < blocksArray.length; i++) {
                 blocksArray[i] = blocksList.get(i);
             }
 
@@ -284,15 +295,12 @@ public class SimpleGates extends JavaPlugin implements Listener {
             }
 
 
-
-
         } else {
             player.sendMessage(pluginPrefix);
             player.sendMessage(ChatColor.RED + "You either have not yet set both selection points or the points are not in the same world!");
         }
 
     }
-
 
 
     public void changeMaterial(Player player, String name, String materialString) {
@@ -328,31 +336,31 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-    public static Vector setVectorDirection(String moveDirection, double distanceToMove){
+    public static Vector setVectorDirection(String moveDirection, double distanceToMove) {
 
         Vector vector = new Vector();
 
-        if(moveDirection.toLowerCase().matches("n")){
+        if (moveDirection.toLowerCase().matches("n")) {
             vector = new Vector(0, 0, -distanceToMove);
-        }else if(moveDirection.toLowerCase().matches("s")){
+        } else if (moveDirection.toLowerCase().matches("s")) {
             vector = new Vector(0, 0, distanceToMove);
-        }else if(moveDirection.toLowerCase().matches("w")){
+        } else if (moveDirection.toLowerCase().matches("w")) {
             vector = new Vector(-distanceToMove, 0, 0);
-        }else if(moveDirection.toLowerCase().matches("e")){
+        } else if (moveDirection.toLowerCase().matches("e")) {
             vector = new Vector(distanceToMove, 0, 0);
-        }else if(moveDirection.toLowerCase().matches("ne")){
+        } else if (moveDirection.toLowerCase().matches("ne")) {
             vector = new Vector(distanceToMove, 0, -distanceToMove);
-        }else if(moveDirection.toLowerCase().matches("se")){
+        } else if (moveDirection.toLowerCase().matches("se")) {
             vector = new Vector(distanceToMove, 0, distanceToMove);
-        }else if(moveDirection.toLowerCase().matches("nw")){
+        } else if (moveDirection.toLowerCase().matches("nw")) {
             vector = new Vector(-distanceToMove, 0, -distanceToMove);
-        }else if(moveDirection.toLowerCase().matches("sw")){
+        } else if (moveDirection.toLowerCase().matches("sw")) {
             vector = new Vector(-distanceToMove, 0, distanceToMove);
-        }else if(moveDirection.toLowerCase().matches("u")){
+        } else if (moveDirection.toLowerCase().matches("u")) {
             vector = new Vector(0, distanceToMove, 0);
-        }else if(moveDirection.toLowerCase().matches("d")){
+        } else if (moveDirection.toLowerCase().matches("d")) {
             vector = new Vector(0, -distanceToMove, 0);
-        }else{
+        } else {
             vector = new Vector(0, 0, 0);
         }
 
@@ -361,13 +369,12 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-
-    public void moveGate(Player player, String name, String direction, String distance, String timesToRun, String delay){
+    public void moveGate(Player player, String name, String direction, String distance, String timesToRun, String delay) {
 
         GateBlock[] gateBlocks;
 
-        for(GateBlock[] tempGateArray : gatesList){
-            if(tempGateArray[0].getName().toLowerCase().equals(name.toLowerCase())){
+        for (GateBlock[] tempGateArray : gatesList) {
+            if (tempGateArray[0].getName().toLowerCase().equals(name.toLowerCase())) {
                 gateBlocks = tempGateArray;
 
                 MoveSchedulerTask task = new MoveSchedulerTask(gateBlocks, direction, Double.parseDouble(distance), Long.parseLong(timesToRun));
@@ -449,8 +456,6 @@ public class SimpleGates extends JavaPlugin implements Listener {
     }
 
 
-
-
     public static String getCardinalDirection(Player player) {
         double rotation = (player.getLocation().getYaw() - 90) % 360;
         double verticalRotation = player.getLocation().getPitch();
@@ -502,7 +507,7 @@ public class SimpleGates extends JavaPlugin implements Listener {
         if (player.hasPermission("gate.selector") && (action.equals(Action.RIGHT_CLICK_BLOCK) || action.equals(Action.LEFT_CLICK_BLOCK))) {
             if (isPlayerEditing(player)) {
 
-                if(event.getHand() == EquipmentSlot.OFF_HAND){
+                if (event.getHand() == EquipmentSlot.OFF_HAND) {
                     return;
                 }
 
